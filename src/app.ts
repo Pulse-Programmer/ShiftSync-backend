@@ -12,6 +12,8 @@ import shiftRoutes from './routes/shifts';
 import swapRoutes from './routes/swaps';
 import overtimeRoutes from './routes/overtime';
 import analyticsRoutes from './routes/analytics';
+import notificationRoutes from './routes/notifications';
+import auditRoutes from './routes/audit';
 
 const app = express();
 
@@ -35,6 +37,8 @@ app.use('/api/shifts', shiftRoutes);
 app.use('/api/swap-requests', swapRoutes);
 app.use('/api/overtime', overtimeRoutes);
 app.use('/api/analytics', analyticsRoutes);
+app.use('/api/notifications', notificationRoutes);
+app.use('/api/audit', auditRoutes);
 
 // Error handler (must be last)
 app.use(errorHandler);

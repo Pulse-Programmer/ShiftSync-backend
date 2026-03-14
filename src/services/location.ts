@@ -130,3 +130,20 @@ export async function getLocationStaff(locationId: string, organizationId: strin
 
   return result.rows;
 }
+
+export async function getOnDutyStaff(locationId: string) {
+  const result = await query(
+    `SELECT u.id, u.first_name, u.last_name, s.start_time, s.end_time, sk.name as skill
+     FROM shift_assignments sa
+     JOIN shifts s ON sa.shift_id = s.id
+     JOIN users u ON sa.user_id = u.id
+     LEFT JOIN skills sk ON s.required_skill_id = sk.id
+     WHERE s.location_id = $1
+     AND sa.status = 'assigned'
+     AND s.start_time <= NOW()
+     AND s.end_time >= NOW()
+     ORDER BY u.last_name, u.first_name`,
+    [locationId]
+  );
+  return result.rows;
+}

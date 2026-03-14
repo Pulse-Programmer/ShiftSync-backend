@@ -71,4 +71,14 @@ router.get('/:id/staff', async (req: Request, res: Response, next: NextFunction)
   }
 });
 
+// On-duty now — who is currently working at this location
+router.get('/:id/on-duty', async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const result = await locationService.getOnDutyStaff(param(req, 'id'));
+    res.json(result);
+  } catch (err) {
+    next(err);
+  }
+});
+
 export default router;
