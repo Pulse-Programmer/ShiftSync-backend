@@ -39,7 +39,7 @@ export async function checkWeeklyHours(ctx: AssignmentContext): Promise<Constrai
     return {
       constraint: 'WEEKLY_HOURS',
       passed: false,
-      severity: 'warning',
+      severity: 'error',
       message: `Would bring weekly total to ${projectedTotal.toFixed(1)} hours (${overtimeHours.toFixed(1)} hours overtime)`,
       details: {
         currentHours: Math.round(currentHours * 10) / 10,

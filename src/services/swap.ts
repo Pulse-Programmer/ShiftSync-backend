@@ -1,6 +1,8 @@
 import { query, getClient } from '../db/pool';
 import { AppError } from '../middleware/errorHandler';
 import { buildContext, validateAssignment } from '../engine/validator';
+import { createNotification } from './notification';
+import { emitToManagers } from '../websocket';
 
 const MAX_PENDING_REQUESTS = 3;
 
@@ -72,6 +74,33 @@ export async function createSwapRequest(data: {
     [data.type, data.assignmentId, data.targetAssignmentId || null, initialStatus, data.reason || null, expiresAt]
   );
 
+  // Get requester name for notifications
+  const requester = await query('SELECT first_name, last_name FROM users WHERE id = $1', [data.requesterId]);
+  const requesterName = `${requester.rows[0].first_name} ${requester.rows[0].last_name}`;
+  const locationId = assignment.rows[0].location_id;
+
+  if (data.type === 'swap' && data.targetAssignmentId) {
+    // Notify the target peer
+    const target = await query(
+      'SELECT user_id FROM shift_assignments WHERE id = $1',
+      [data.targetAssignmentId]
+    );
+    await createNotification({
+      userId: target.rows[0].user_id,
+      type: 'swap_request',
+      title: 'Swap Request',
+      message: `${requesterName} wants to swap shifts with you`,
+      metadata: { swapId: result.rows[0].id },
+    });
+  } else if (data.type === 'drop') {
+    // Notify managers at the location
+    emitToManagers(locationId, 'swap:new_drop', {
+      swapId: result.rows[0].id,
+      requester: requesterName,
+      reason: data.reason,
+    });
+  }
+
   return result.rows[0];
 }
 
@@ -98,6 +127,20 @@ export async function acceptSwap(swapId: string, acceptingUserId: string) {
      WHERE id = $1 RETURNING *`,
     [swapId]
   );
+
+  // Notify requester that peer accepted
+  const reqAssignment = await query(
+    'SELECT user_id FROM shift_assignments WHERE id = $1',
+    [swap.rows[0].requester_assignment_id]
+  );
+  const accepter = await query('SELECT first_name, last_name FROM users WHERE id = $1', [acceptingUserId]);
+  await createNotification({
+    userId: reqAssignment.rows[0].user_id,
+    type: 'swap_accepted',
+    title: 'Swap Accepted',
+    message: `${accepter.rows[0].first_name} ${accepter.rows[0].last_name} accepted your swap request — pending manager approval`,
+    metadata: { swapId },
+  });
 
   return result.rows[0];
 }
@@ -154,6 +197,14 @@ export async function approveSwap(swapId: string, managerId: string, managerReas
     } else {
       // Drop with pickup: if someone picked it up
       if (swapData.target_user_id) {
+        // Re-validate pickup user's constraints (may have changed since pickup)
+        const dropCtx = await buildContext(swapData.target_user_id, swapData.requester_shift_id, swapData.requester_assignment_id);
+        const dropValidation = await validateAssignment(dropCtx);
+        if (!dropValidation.valid) {
+          await client.query('ROLLBACK');
+          return { approved: false, validation: { pickup: dropValidation } };
+        }
+
         // Remove requester, assign to pickup user
         await client.query(
           `UPDATE shift_assignments SET user_id = $1, assigned_at = NOW() WHERE id = $2`,
@@ -176,6 +227,27 @@ export async function approveSwap(swapId: string, managerId: string, managerReas
     );
 
     await client.query('COMMIT');
+
+    // Notify all involved parties
+    const notifyMsg = swapData.type === 'swap' ? 'Your swap request has been approved' : 'Your drop request has been approved';
+    await createNotification({
+      userId: swapData.requester_user_id,
+      type: 'swap_approved',
+      title: 'Request Approved',
+      message: notifyMsg,
+      metadata: { swapId },
+    });
+    if (swapData.target_user_id) {
+      await createNotification({
+        userId: swapData.target_user_id,
+        type: 'swap_approved',
+        title: 'Request Approved',
+        message: swapData.type === 'swap'
+          ? 'A swap involving your shift has been approved'
+          : 'Your shift pickup has been approved — you are now assigned',
+        metadata: { swapId },
+      });
+    }
 
     return { approved: true };
   } catch (err) {
@@ -219,7 +291,34 @@ export async function cancelSwap(swapId: string, requesterId: string) {
     throw new AppError(404, 'Swap request not found, already resolved, or not yours to cancel');
   }
 
-  return result.rows[0];
+  const swapData = result.rows[0];
+
+  // Notify target staff (if any) that swap was cancelled
+  if (swapData.target_user_id) {
+    const requester = await query('SELECT first_name, last_name FROM users WHERE id = $1', [requesterId]);
+    await createNotification({
+      userId: swapData.target_user_id,
+      type: 'swap_cancelled',
+      title: 'Swap Cancelled',
+      message: `${requester.rows[0].first_name} ${requester.rows[0].last_name} cancelled their swap request`,
+      metadata: { swapId },
+    });
+  } else if (swapData.target_assignment_id) {
+    // For swap type, notify the target assignment owner
+    const target = await query('SELECT user_id FROM shift_assignments WHERE id = $1', [swapData.target_assignment_id]);
+    if (target.rows.length > 0) {
+      const requester = await query('SELECT first_name, last_name FROM users WHERE id = $1', [requesterId]);
+      await createNotification({
+        userId: target.rows[0].user_id,
+        type: 'swap_cancelled',
+        title: 'Swap Cancelled',
+        message: `${requester.rows[0].first_name} ${requester.rows[0].last_name} cancelled their swap request`,
+        metadata: { swapId },
+      });
+    }
+  }
+
+  return swapData;
 }
 
 export async function pickupShift(swapId: string, pickupUserId: string) {
@@ -256,6 +355,20 @@ export async function pickupShift(swapId: string, pickupUserId: string) {
   if (result.rows.length === 0) {
     throw new AppError(409, 'Someone else already picked up this shift');
   }
+
+  // Notify requester that someone picked up their shift
+  const reqAssignment = await query(
+    'SELECT user_id FROM shift_assignments WHERE id = $1',
+    [swap.rows[0].requester_assignment_id]
+  );
+  const picker = await query('SELECT first_name, last_name FROM users WHERE id = $1', [pickupUserId]);
+  await createNotification({
+    userId: reqAssignment.rows[0].user_id,
+    type: 'shift_pickup',
+    title: 'Shift Pickup',
+    message: `${picker.rows[0].first_name} ${picker.rows[0].last_name} wants to pick up your dropped shift — pending manager approval`,
+    metadata: { swapId },
+  });
 
   return { picked: true, swap: result.rows[0], validation };
 }
