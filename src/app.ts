@@ -7,6 +7,8 @@ import userRoutes from './routes/users';
 import locationRoutes from './routes/locations';
 import skillRoutes from './routes/skills';
 import invitationRoutes from './routes/invitations';
+import scheduleRoutes from './routes/schedules';
+import shiftRoutes from './routes/shifts';
 
 const app = express();
 
@@ -25,6 +27,8 @@ app.use('/api/users', userRoutes);
 app.use('/api/locations', locationRoutes);
 app.use('/api/skills', skillRoutes);
 app.use('/api/invitations', invitationRoutes);
+app.use('/api/schedules', scheduleRoutes);
+app.use('/api/shifts', shiftRoutes);
 
 // Error handler (must be last)
 app.use(errorHandler);
