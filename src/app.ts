@@ -9,6 +9,9 @@ import skillRoutes from './routes/skills';
 import invitationRoutes from './routes/invitations';
 import scheduleRoutes from './routes/schedules';
 import shiftRoutes from './routes/shifts';
+import swapRoutes from './routes/swaps';
+import overtimeRoutes from './routes/overtime';
+import analyticsRoutes from './routes/analytics';
 
 const app = express();
 
@@ -29,6 +32,9 @@ app.use('/api/skills', skillRoutes);
 app.use('/api/invitations', invitationRoutes);
 app.use('/api/schedules', scheduleRoutes);
 app.use('/api/shifts', shiftRoutes);
+app.use('/api/swap-requests', swapRoutes);
+app.use('/api/overtime', overtimeRoutes);
+app.use('/api/analytics', analyticsRoutes);
 
 // Error handler (must be last)
 app.use(errorHandler);
