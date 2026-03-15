@@ -653,6 +653,31 @@ INSERT INTO swap_requests (id, type, requester_assignment_id, status, requester_
    'pending_manager', 'Doctor appointment',
    date_trunc('week', CURRENT_DATE) + INTERVAL '23 hours'); -- expires 24h before Mon shift
 
+-- Approved drop at Downtown: Mike dropped his Tue bartender — Jordan approved
+INSERT INTO swap_requests (id, type, requester_assignment_id, status, requester_reason, manager_id, manager_reason, created_at, updated_at) VALUES
+  ('bb000000-0000-4000-a000-000000000003', 'drop',
+   'aa000000-0000-4000-a000-000000000005', -- Mike's Tue bartender at Downtown
+   'approved', 'Car broke down — can''t get to work',
+   'd0000000-0000-4000-a000-000000000002', -- Jordan approved
+   'Approved — will adjust Tuesday coverage. Drive safe.',
+   NOW() - INTERVAL '2 days 4 hours', NOW() - INTERVAL '2 days 2 hours');
+
+-- Rejected drop at Downtown: James wanted to drop Thu line cook — Jordan rejected
+INSERT INTO swap_requests (id, type, requester_assignment_id, status, requester_reason, manager_id, manager_reason, created_at, updated_at) VALUES
+  ('bb000000-0000-4000-a000-000000000004', 'drop',
+   'aa000000-0000-4000-a000-000000000007', -- James's Thu line cook at Downtown
+   'rejected', 'Need a rest day — already working 5 consecutive days',
+   'd0000000-0000-4000-a000-000000000002', -- Jordan rejected
+   'No kitchen coverage available — you''re the only line cook scheduled Thursday. Try finding a swap partner instead.',
+   NOW() - INTERVAL '3 days', NOW() - INTERVAL '2 days 20 hours');
+
+-- Pending drop at Downtown: Sarah wants to drop Sat premium server — awaiting Jordan
+INSERT INTO swap_requests (id, type, requester_assignment_id, status, requester_reason, expires_at) VALUES
+  ('bb000000-0000-4000-a000-000000000005', 'drop',
+   'aa000000-0000-4000-a000-000000000010', -- Sarah's Sat server (premium) at Downtown
+   'pending_manager', 'Want the weekend off — already have Friday evening shift',
+   date_trunc('week', CURRENT_DATE) + INTERVAL '5 days 10 hours');
+
 -- ============================================================
 -- AUDIT LOG ENTRIES — comprehensive change history
 -- Tells the story of how this week's schedules were built
@@ -708,13 +733,28 @@ INSERT INTO audit_logs (entity_type, entity_id, action, before_state, after_stat
    '{"status": "draft"}', '{"status": "published", "location": "Coastal Eats Beachfront"}',
    'd0000000-0000-4000-a000-000000000005', NOW() - INTERVAL '1 day 18 hours', 'Schedule published — staff notified'),
 
-  -- Swap and drop requests (1-2 days ago)
+  -- Swap and drop requests at Downtown (1-3 days ago)
+  ('swap_request', 'bb000000-0000-4000-a000-000000000003', 'create', NULL,
+   '{"type": "drop", "requester": "Mike Chen", "shift": "Tuesday bartender 9am-5pm", "location": "Downtown", "reason": "Car broke down"}',
+   'd0000000-0000-4000-a000-000000000011', NOW() - INTERVAL '2 days 4 hours', 'Drop request submitted'),
+  ('swap_request', 'bb000000-0000-4000-a000-000000000003', 'approve',
+   '{"status": "pending_manager"}', '{"status": "approved", "manager": "Jordan Park", "reason": "Approved — will adjust Tuesday coverage"}',
+   'd0000000-0000-4000-a000-000000000002', NOW() - INTERVAL '2 days 2 hours', 'Drop approved by manager'),
+  ('swap_request', 'bb000000-0000-4000-a000-000000000004', 'create', NULL,
+   '{"type": "drop", "requester": "James Wilson", "shift": "Thursday line cook 9am-5pm", "location": "Downtown", "reason": "Needs rest — working 5 consecutive days"}',
+   'd0000000-0000-4000-a000-000000000013', NOW() - INTERVAL '3 days', 'Drop request submitted'),
+  ('swap_request', 'bb000000-0000-4000-a000-000000000004', 'reject',
+   '{"status": "pending_manager"}', '{"status": "rejected", "manager": "Jordan Park", "reason": "No kitchen coverage — only line cook scheduled Thursday"}',
+   'd0000000-0000-4000-a000-000000000002', NOW() - INTERVAL '2 days 20 hours', 'Drop rejected — insufficient coverage'),
   ('swap_request', 'bb000000-0000-4000-a000-000000000001', 'create', NULL,
-   '{"type": "swap", "requester": "Sarah Johnson", "target": "Mike Chen", "shift": "Friday bartender 5pm-11pm", "reason": "Family dinner on Friday"}',
+   '{"type": "swap", "requester": "Sarah Johnson", "target": "Mike Chen", "shift": "Friday bartender 5pm-11pm", "location": "Downtown", "reason": "Family dinner on Friday"}',
    'd0000000-0000-4000-a000-000000000010', NOW() - INTERVAL '1 day 14 hours', 'Swap request submitted — awaiting peer acceptance'),
   ('swap_request', 'bb000000-0000-4000-a000-000000000002', 'create', NULL,
-   '{"type": "drop", "requester": "Maria Garcia", "shift": "Monday server 9am-5pm", "reason": "Doctor appointment"}',
+   '{"type": "drop", "requester": "Maria Garcia", "shift": "Monday server 9am-5pm", "location": "Downtown", "reason": "Doctor appointment"}',
    'd0000000-0000-4000-a000-000000000014', NOW() - INTERVAL '1 day 8 hours', 'Drop request submitted — awaiting manager approval'),
+  ('swap_request', 'bb000000-0000-4000-a000-000000000005', 'create', NULL,
+   '{"type": "drop", "requester": "Sarah Johnson", "shift": "Saturday server 5pm-11pm (premium)", "location": "Downtown", "reason": "Wants the weekend off"}',
+   'd0000000-0000-4000-a000-000000000010', NOW() - INTERVAL '20 hours', 'Drop request submitted — premium shift'),
 
   -- Next-week draft creation (recent)
   ('schedule', 'e0000000-0000-4000-a000-000000000002', 'create', NULL,
@@ -785,9 +825,102 @@ INSERT INTO notifications (user_id, type, title, message, metadata, is_read, cre
    '{"hours": 44}',
    false, NOW() - INTERVAL '2 days');
 
+-- Manager notifications (Jordan Park — Downtown swap actions)
+INSERT INTO notifications (user_id, type, title, message, metadata, is_read, created_at) VALUES
+  ('d0000000-0000-4000-a000-000000000002', 'swap_request',
+   'Drop Request: Mike Chen', 'Mike Chen requested to drop his Tuesday bartender shift (9am-5pm). Reason: Car broke down.',
+   '{"swapRequestId": "bb000000-0000-4000-a000-000000000003"}',
+   true, NOW() - INTERVAL '2 days 4 hours'),
+  ('d0000000-0000-4000-a000-000000000002', 'swap_update',
+   'Drop Approved: Mike Chen', 'You approved Mike Chen''s drop request for Tuesday bartender shift.',
+   '{"swapRequestId": "bb000000-0000-4000-a000-000000000003"}',
+   true, NOW() - INTERVAL '2 days 2 hours'),
+  ('d0000000-0000-4000-a000-000000000002', 'swap_request',
+   'Drop Request: James Wilson', 'James Wilson requested to drop his Thursday line cook shift (9am-5pm). Reason: Needs rest — working 5 consecutive days.',
+   '{"swapRequestId": "bb000000-0000-4000-a000-000000000004"}',
+   true, NOW() - INTERVAL '3 days'),
+  ('d0000000-0000-4000-a000-000000000002', 'swap_request',
+   'Drop Request: Sarah Johnson', 'Sarah Johnson wants to drop her Saturday server shift (5pm-11pm premium). Reason: Wants the weekend off — already has Friday evening shift.',
+   '{"swapRequestId": "bb000000-0000-4000-a000-000000000005"}',
+   false, NOW() - INTERVAL '20 hours');
+
+-- Staff notifications (Mike Chen — drop approved)
+INSERT INTO notifications (user_id, type, title, message, metadata, is_read, created_at) VALUES
+  ('d0000000-0000-4000-a000-000000000011', 'swap_update',
+   'Drop Approved', 'Your request to drop Tuesday bartender shift has been approved by Jordan Park. Drive safe.',
+   '{"swapRequestId": "bb000000-0000-4000-a000-000000000003"}',
+   true, NOW() - INTERVAL '2 days 2 hours');
+
+-- Staff notifications (James Wilson — drop rejected)
+INSERT INTO notifications (user_id, type, title, message, metadata, is_read, created_at) VALUES
+  ('d0000000-0000-4000-a000-000000000013', 'swap_update',
+   'Drop Request Denied', 'Your request to drop Thursday line cook shift was denied by Jordan Park. Reason: No kitchen coverage — you''re the only line cook scheduled Thursday. Try finding a swap partner instead.',
+   '{"swapRequestId": "bb000000-0000-4000-a000-000000000004"}',
+   false, NOW() - INTERVAL '2 days 20 hours');
+
+-- Staff notifications (Sarah Johnson — premium drop pending)
+INSERT INTO notifications (user_id, type, title, message, metadata, is_read, created_at) VALUES
+  ('d0000000-0000-4000-a000-000000000010', 'swap_update',
+   'Drop Request Submitted', 'Your request to drop Saturday server shift (premium) has been submitted and is awaiting manager approval.',
+   '{"swapRequestId": "bb000000-0000-4000-a000-000000000005"}',
+   true, NOW() - INTERVAL '20 hours');
+
 -- Staff notifications (Maria Garcia)
 INSERT INTO notifications (user_id, type, title, message, metadata, is_read, created_at) VALUES
   ('d0000000-0000-4000-a000-000000000014', 'swap_update',
    'Drop Request Submitted', 'Your request to drop Monday server shift has been submitted and is awaiting manager approval.',
    '{"swapRequestId": "bb000000-0000-4000-a000-000000000002"}',
    true, NOW() - INTERVAL '1 day 8 hours');
+
+-- ============================================================
+-- INVITATIONS — show active recruitment + onboarding history
+-- ============================================================
+
+-- Pending invitations (active recruitment)
+INSERT INTO invitations (id, organization_id, email, role, location_ids, skill_ids, token, invited_by, expires_at, created_at) VALUES
+  ('cc000000-0000-4000-a000-000000000001', 'a0000000-0000-4000-a000-000000000001',
+   'rachel.moore@gmail.com', 'staff',
+   ARRAY['b0000000-0000-4000-a000-000000000001']::uuid[],
+   ARRAY['c0000000-0000-4000-a000-000000000003']::uuid[],
+   'inv_downtown_server_001',
+   'd0000000-0000-4000-a000-000000000002', -- invited by Jordan (Downtown manager)
+   NOW() + INTERVAL '5 days',
+   NOW() - INTERVAL '2 days'),
+  ('cc000000-0000-4000-a000-000000000002', 'a0000000-0000-4000-a000-000000000001',
+   'kevin.wright@gmail.com', 'staff',
+   ARRAY['b0000000-0000-4000-a000-000000000003']::uuid[],
+   ARRAY['c0000000-0000-4000-a000-000000000002']::uuid[],
+   'inv_westside_cook_001',
+   'd0000000-0000-4000-a000-000000000004', -- invited by Casey (Westside manager)
+   NOW() + INTERVAL '3 days',
+   NOW() - INTERVAL '4 days');
+
+-- Accepted invitations (onboarding history — matching existing staff)
+INSERT INTO invitations (id, organization_id, email, role, location_ids, skill_ids, token, invited_by, expires_at, accepted_at, created_at) VALUES
+  ('cc000000-0000-4000-a000-000000000003', 'a0000000-0000-4000-a000-000000000001',
+   'anna.white@coastaleats.com', 'staff',
+   ARRAY['b0000000-0000-4000-a000-000000000003']::uuid[],
+   ARRAY['c0000000-0000-4000-a000-000000000003', 'c0000000-0000-4000-a000-000000000002']::uuid[],
+   'inv_accepted_anna_001',
+   'd0000000-0000-4000-a000-000000000004', -- Casey invited Anna
+   NOW() - INTERVAL '12 days',
+   NOW() - INTERVAL '14 days',
+   NOW() - INTERVAL '16 days'),
+  ('cc000000-0000-4000-a000-000000000004', 'a0000000-0000-4000-a000-000000000001',
+   'chris.allen@coastaleats.com', 'staff',
+   ARRAY['b0000000-0000-4000-a000-000000000004']::uuid[],
+   ARRAY['c0000000-0000-4000-a000-000000000002', 'c0000000-0000-4000-a000-000000000001']::uuid[],
+   'inv_accepted_chris_001',
+   'd0000000-0000-4000-a000-000000000005', -- Morgan invited Chris
+   NOW() - INTERVAL '5 days',
+   NOW() - INTERVAL '7 days',
+   NOW() - INTERVAL '9 days'),
+  ('cc000000-0000-4000-a000-000000000005', 'a0000000-0000-4000-a000-000000000001',
+   'tom.harris@coastaleats.com', 'staff',
+   ARRAY['b0000000-0000-4000-a000-000000000003', 'b0000000-0000-4000-a000-000000000004']::uuid[],
+   ARRAY['c0000000-0000-4000-a000-000000000001', 'c0000000-0000-4000-a000-000000000003']::uuid[],
+   'inv_accepted_tom_001',
+   'd0000000-0000-4000-a000-000000000004', -- Casey invited Tom
+   NOW() - INTERVAL '19 days',
+   NOW() - INTERVAL '21 days',
+   NOW() - INTERVAL '23 days');
