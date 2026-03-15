@@ -70,7 +70,8 @@ export async function buildContext(
  */
 export async function validateAssignment(
   context: AssignmentContext,
-  overrides?: Override[]
+  overrides?: Override[],
+  skipSuggestions = false
 ): Promise<ValidationResult> {
   // Run all constraints in parallel
   const results = await Promise.all(
@@ -102,8 +103,8 @@ export async function validateAssignment(
     results,
   };
 
-  // If there are errors, suggest alternatives
-  if (hasErrors) {
+  // If there are errors, suggest alternatives (but not recursively)
+  if (hasErrors && !skipSuggestions) {
     try {
       const suggestions = await suggestAlternatives(context);
       validationResult.suggestions = suggestions;

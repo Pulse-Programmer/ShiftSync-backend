@@ -47,7 +47,7 @@ export async function suggestAlternatives(
         userId: row.id,
       };
 
-      const validation = await validateAssignment(candidateContext);
+      const validation = await validateAssignment(candidateContext, undefined, true);
 
       // Only suggest if no hard errors
       const errors = validation.results.filter(r => !r.passed && r.severity === 'error');
