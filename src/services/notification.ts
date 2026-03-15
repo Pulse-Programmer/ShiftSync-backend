@@ -1,6 +1,7 @@
 import { query } from '../db/pool';
 import { AppError } from '../middleware/errorHandler';
 import { emitToUser } from '../websocket';
+import { sendNotificationEmail } from './email';
 
 export async function createNotification(data: {
   userId: string;
@@ -33,7 +34,7 @@ export async function createNotification(data: {
   // Push via WebSocket
   emitToUser(data.userId, 'notification:new', notification);
 
-  // Check for email channel preference (simulated)
+  // Send email if user has email channel enabled
   const emailPref = await query(
     `SELECT enabled FROM notification_preferences
      WHERE user_id = $1 AND notification_type = $2 AND channel = 'email'`,
@@ -43,7 +44,7 @@ export async function createNotification(data: {
   if (emailPref.rows.length > 0 && emailPref.rows[0].enabled) {
     const user = await query('SELECT email FROM users WHERE id = $1', [data.userId]);
     if (user.rows.length > 0) {
-      console.log(`[EMAIL SIMULATED] To: ${user.rows[0].email} | ${data.title}: ${data.message}`);
+      await sendNotificationEmail(user.rows[0].email, data.title, data.message);
     }
   }
 
@@ -71,19 +72,28 @@ export async function getNotifications(
 ) {
   const { unreadOnly = false, limit = 20, offset = 0 } = options;
 
-  let sql = 'SELECT * FROM notifications WHERE user_id = $1';
-  const params: any[] = [userId];
-  let paramIdx = 2;
+  let whereSql = 'WHERE user_id = $1';
+  const countParams: any[] = [userId];
 
   if (unreadOnly) {
-    sql += ` AND is_read = false`;
+    whereSql += ` AND is_read = false`;
   }
+
+  const countResult = await query(
+    `SELECT COUNT(*) as total FROM notifications ${whereSql}`,
+    countParams
+  );
+  const total = parseInt(countResult.rows[0].total);
+
+  let sql = `SELECT * FROM notifications ${whereSql}`;
+  const params: any[] = [...countParams];
+  let paramIdx = params.length + 1;
 
   sql += ` ORDER BY created_at DESC LIMIT $${paramIdx++} OFFSET $${paramIdx++}`;
   params.push(limit, offset);
 
   const result = await query(sql, params);
-  return result.rows;
+  return { data: result.rows, total };
 }
 
 export async function getUnreadCount(userId: string): Promise<number> {

@@ -3,6 +3,7 @@ import { z } from 'zod/v4';
 import { authenticate, requireRole } from '../middleware/auth';
 import * as auditService from '../services/audit';
 import { param } from '../utils/params';
+import { parsePagination, paginate } from '../utils/pagination';
 
 const router = Router();
 
@@ -21,16 +22,17 @@ router.get('/shifts/:id', requireRole('admin', 'manager'), async (req: Request, 
 // Query audit logs (admin only)
 router.get('/', requireRole('admin'), async (req: Request, res: Response, next: NextFunction) => {
   try {
-    const result = await auditService.queryAuditLogs({
+    const pg = parsePagination(req, 50);
+    const { data, total } = await auditService.queryAuditLogs({
       organizationId: req.user!.organizationId,
       entityType: req.query.entityType as string | undefined,
       startDate: req.query.startDate as string | undefined,
       endDate: req.query.endDate as string | undefined,
       locationId: req.query.locationId as string | undefined,
-      limit: parseInt(req.query.limit as string) || 50,
-      offset: parseInt(req.query.offset as string) || 0,
+      limit: pg.pageSize,
+      offset: pg.offset,
     });
-    res.json(result);
+    res.json(paginate(data, total, pg));
   } catch (err) {
     next(err);
   }

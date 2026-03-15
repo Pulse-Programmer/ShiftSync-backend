@@ -3,6 +3,7 @@ import { z } from 'zod/v4';
 import { authenticate } from '../middleware/auth';
 import * as notificationService from '../services/notification';
 import { param } from '../utils/params';
+import { parsePagination, paginate } from '../utils/pagination';
 
 const router = Router();
 
@@ -12,15 +13,14 @@ router.use(authenticate);
 router.get('/', async (req: Request, res: Response, next: NextFunction) => {
   try {
     const unreadOnly = req.query.unreadOnly === 'true';
-    const limit = parseInt(req.query.limit as string) || 20;
-    const offset = parseInt(req.query.offset as string) || 0;
+    const pg = parsePagination(req, 20);
 
-    const result = await notificationService.getNotifications(req.user!.userId, {
+    const { data, total } = await notificationService.getNotifications(req.user!.userId, {
       unreadOnly,
-      limit,
-      offset,
+      limit: pg.pageSize,
+      offset: pg.offset,
     });
-    res.json(result);
+    res.json(paginate(data, total, pg));
   } catch (err) {
     next(err);
   }

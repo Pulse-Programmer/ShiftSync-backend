@@ -2,6 +2,7 @@ import { query } from '../db/pool';
 import { config } from '../config';
 import { AppError } from '../middleware/errorHandler';
 import { generateInviteToken } from './auth';
+import { sendInvitationEmail } from './email';
 
 export async function createInvitation(data: {
   organizationId: string;
@@ -67,15 +68,7 @@ export async function createInvitation(data: {
 
   const invitation = result.rows[0];
 
-  // Simulated email — log to console
-  console.log('========================================');
-  console.log('INVITATION EMAIL (simulated)');
-  console.log(`To: ${data.email}`);
-  console.log(`Role: ${data.role}`);
-  console.log(`Token: ${token}`);
-  console.log(`Invite link: ${config.corsOrigin}/accept-invite?token=${token}`);
-  console.log(`Expires: ${expiresAt.toISOString()}`);
-  console.log('========================================');
+  await sendInvitationEmail(data.email, data.role, token, expiresAt);
 
   return invitation;
 }
@@ -83,26 +76,40 @@ export async function createInvitation(data: {
 export async function listInvitations(
   organizationId: string,
   inviterRole: string,
-  inviterId: string
+  inviterId: string,
+  pagination?: { limit: number; offset: number }
 ) {
+  let whereSql = 'WHERE i.organization_id = $1';
+  const whereParams: any[] = [organizationId];
+
+  if (inviterRole === 'manager') {
+    whereSql += ' AND i.invited_by = $2';
+    whereParams.push(inviterId);
+  }
+
+  const countResult = await query(
+    `SELECT COUNT(*) as total FROM invitations i ${whereSql}`,
+    whereParams
+  );
+  const total = parseInt(countResult.rows[0].total);
+
+  const params = [...whereParams];
   let sql = `
     SELECT i.*, u.first_name as invited_by_name, u.last_name as invited_by_last_name
     FROM invitations i
     LEFT JOIN users u ON i.invited_by = u.id
-    WHERE i.organization_id = $1
+    ${whereSql}
+    ORDER BY i.created_at DESC
   `;
-  const params: any[] = [organizationId];
 
-  // Managers only see invitations they sent
-  if (inviterRole === 'manager') {
-    sql += ' AND i.invited_by = $2';
-    params.push(inviterId);
+  if (pagination) {
+    const paramIdx = params.length + 1;
+    sql += ` LIMIT $${paramIdx} OFFSET $${paramIdx + 1}`;
+    params.push(pagination.limit, pagination.offset);
   }
 
-  sql += ' ORDER BY i.created_at DESC';
-
   const result = await query(sql, params);
-  return result.rows;
+  return { data: result.rows, total };
 }
 
 export async function revokeInvitation(id: string, organizationId: string) {
@@ -137,14 +144,7 @@ export async function resendInvitation(id: string, organizationId: string) {
 
   const invitation = result.rows[0];
 
-  // Simulated email
-  console.log('========================================');
-  console.log('INVITATION RESENT (simulated)');
-  console.log(`To: ${invitation.email}`);
-  console.log(`Token: ${newToken}`);
-  console.log(`Invite link: ${config.corsOrigin}/accept-invite?token=${newToken}`);
-  console.log(`Expires: ${expiresAt.toISOString()}`);
-  console.log('========================================');
+  await sendInvitationEmail(invitation.email, invitation.role, newToken, expiresAt);
 
   return invitation;
 }

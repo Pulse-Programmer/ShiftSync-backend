@@ -27,11 +27,11 @@ INSERT INTO organizations (id, name) VALUES
 -- ============================================================
 -- LOCATIONS (4 across 2 timezones)
 -- ============================================================
-INSERT INTO locations (id, organization_id, name, address, timezone, edit_cutoff_hours) VALUES
-  ('b0000000-0000-4000-a000-000000000001', 'a0000000-0000-4000-a000-000000000001', 'Coastal Eats Downtown',   '123 Main St, New York, NY',       'America/New_York',      48),
-  ('b0000000-0000-4000-a000-000000000002', 'a0000000-0000-4000-a000-000000000001', 'Coastal Eats Midtown',    '456 5th Ave, New York, NY',       'America/New_York',      48),
-  ('b0000000-0000-4000-a000-000000000003', 'a0000000-0000-4000-a000-000000000001', 'Coastal Eats Westside',   '789 Ocean Ave, Los Angeles, CA',  'America/Los_Angeles',   48),
-  ('b0000000-0000-4000-a000-000000000004', 'a0000000-0000-4000-a000-000000000001', 'Coastal Eats Beachfront', '321 Pacific Hwy, San Diego, CA',  'America/Los_Angeles',   24);
+INSERT INTO locations (id, organization_id, name, address, timezone, edit_cutoff_hours, latitude, longitude) VALUES
+  ('b0000000-0000-4000-a000-000000000001', 'a0000000-0000-4000-a000-000000000001', 'Coastal Eats Downtown',   '123 Main St, New York, NY',       'America/New_York',      48, 40.7128000, -74.0060000),
+  ('b0000000-0000-4000-a000-000000000002', 'a0000000-0000-4000-a000-000000000001', 'Coastal Eats Midtown',    '456 5th Ave, New York, NY',       'America/New_York',      48, 40.7549000, -73.9840000),
+  ('b0000000-0000-4000-a000-000000000003', 'a0000000-0000-4000-a000-000000000001', 'Coastal Eats Westside',   '789 Ocean Ave, Los Angeles, CA',  'America/Los_Angeles',   48, 34.0195000, -118.4912000),
+  ('b0000000-0000-4000-a000-000000000004', 'a0000000-0000-4000-a000-000000000001', 'Coastal Eats Beachfront', '321 Pacific Hwy, San Diego, CA',  'America/Los_Angeles',   24, 32.7157000, -117.1611000);
 
 -- ============================================================
 -- SKILLS

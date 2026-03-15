@@ -3,6 +3,7 @@ import { z } from 'zod/v4';
 import { authenticate, requireRole } from '../middleware/auth';
 import * as invitationService from '../services/invitation';
 import { param } from '../utils/params';
+import { parsePagination, paginate } from '../utils/pagination';
 
 const router = Router();
 
@@ -37,12 +38,14 @@ router.post('/', requireRole('admin', 'manager'), async (req: Request, res: Resp
 
 router.get('/', requireRole('admin', 'manager'), async (req: Request, res: Response, next: NextFunction) => {
   try {
-    const result = await invitationService.listInvitations(
+    const pg = parsePagination(req, 20);
+    const { data, total } = await invitationService.listInvitations(
       req.user!.organizationId,
       req.user!.role,
-      req.user!.userId
+      req.user!.userId,
+      { limit: pg.pageSize, offset: pg.offset }
     );
-    res.json(result);
+    res.json(paginate(data, total, pg));
   } catch (err) {
     next(err);
   }

@@ -76,7 +76,7 @@ export async function register(data: {
 
 export async function login(email: string, password: string) {
   const result = await query(
-    `SELECT id, organization_id, email, password_hash, first_name, last_name, role, is_active
+    `SELECT id, organization_id, email, password_hash, first_name, last_name, role, is_active, profile_photo_url
      FROM users WHERE email = $1`,
     [email]
   );
@@ -111,6 +111,7 @@ export async function login(email: string, password: string) {
       lastName: user.last_name,
       role: user.role,
       organizationId: user.organization_id,
+      profilePhotoUrl: user.profile_photo_url,
     },
   };
 }

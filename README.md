@@ -339,11 +339,7 @@ Shift assignments use an INSERT-with-NOT-EXISTS pattern to prevent concurrent do
 
 ## Known Limitations
 
-- Email notifications are simulated (logged to console) — no SMTP integration
-- No rate limiting on API endpoints
-- No pagination on list endpoints (sufficient for demo scale)
 - Audit log export is synchronous CSV generation (would need streaming for large datasets)
-- No file upload for profile photos
 - Invitation tokens use UUID v4 (not cryptographically signed, but sufficiently random)
 - WebSocket reconnection handling depends on client implementation
 

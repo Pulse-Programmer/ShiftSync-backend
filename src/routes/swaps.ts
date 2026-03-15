@@ -3,6 +3,7 @@ import { z } from 'zod/v4';
 import { authenticate, requireRole } from '../middleware/auth';
 import * as swapService from '../services/swap';
 import { param } from '../utils/params';
+import { parsePagination, paginate } from '../utils/pagination';
 
 const router = Router();
 
@@ -31,15 +32,18 @@ router.post('/', async (req: Request, res: Response, next: NextFunction) => {
 // List swap requests
 router.get('/', async (req: Request, res: Response, next: NextFunction) => {
   try {
-    const result = await swapService.listSwapRequests({
+    const pg = parsePagination(req, 20);
+    const { data, total } = await swapService.listSwapRequests({
       organizationId: req.user!.organizationId,
       status: req.query.status as string | undefined,
       locationId: req.query.locationId as string | undefined,
       userId: req.user!.userId,
       role: req.user!.role,
       userLocationIds: req.user!.locationIds,
+      limit: pg.pageSize,
+      offset: pg.offset,
     });
-    res.json(result);
+    res.json(paginate(data, total, pg));
   } catch (err) {
     next(err);
   }

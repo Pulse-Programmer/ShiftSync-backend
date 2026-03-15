@@ -380,6 +380,8 @@ export async function listSwapRequests(filters: {
   userId?: string;
   role: string;
   userLocationIds: string[];
+  limit?: number;
+  offset?: number;
 }) {
   // Expire stale drop requests lazily
   await query(
@@ -390,13 +392,7 @@ export async function listSwapRequests(filters: {
      AND expires_at IS NOT NULL AND expires_at < NOW()`
   );
 
-  let sql = `
-    SELECT sr.*,
-           req_u.first_name as requester_first, req_u.last_name as requester_last,
-           tgt_u.first_name as target_first, tgt_u.last_name as target_last,
-           s.start_time as shift_start, s.end_time as shift_end,
-           l.name as location_name, l.timezone,
-           sk.name as skill_name
+  const fromJoinSql = `
     FROM swap_requests sr
     JOIN shift_assignments req_sa ON sr.requester_assignment_id = req_sa.id
     JOIN users req_u ON req_sa.user_id = req_u.id
@@ -405,38 +401,59 @@ export async function listSwapRequests(filters: {
     LEFT JOIN skills sk ON s.required_skill_id = sk.id
     LEFT JOIN shift_assignments tgt_sa ON sr.target_assignment_id = tgt_sa.id
     LEFT JOIN users tgt_u ON COALESCE(sr.target_user_id, tgt_sa.user_id) = tgt_u.id
-    WHERE l.organization_id = $1
   `;
-  const params: any[] = [filters.organizationId];
+
+  let whereSql = 'WHERE l.organization_id = $1';
+  const whereParams: any[] = [filters.organizationId];
   let paramIdx = 2;
 
   if (filters.status) {
-    sql += ` AND sr.status = $${paramIdx++}`;
-    params.push(filters.status);
+    whereSql += ` AND sr.status = $${paramIdx++}`;
+    whereParams.push(filters.status);
   }
 
   if (filters.locationId) {
-    sql += ` AND s.location_id = $${paramIdx++}`;
-    params.push(filters.locationId);
+    whereSql += ` AND s.location_id = $${paramIdx++}`;
+    whereParams.push(filters.locationId);
   }
 
-  // Managers only see swaps at their locations
   if (filters.role === 'manager') {
-    sql += ` AND s.location_id = ANY($${paramIdx++})`;
-    params.push(filters.userLocationIds);
+    whereSql += ` AND s.location_id = ANY($${paramIdx++})`;
+    whereParams.push(filters.userLocationIds);
   }
 
-  // Staff only see their own swaps
   if (filters.role === 'staff' && filters.userId) {
-    sql += ` AND (req_sa.user_id = $${paramIdx} OR sr.target_user_id = $${paramIdx})`;
-    params.push(filters.userId);
+    whereSql += ` AND (req_sa.user_id = $${paramIdx} OR sr.target_user_id = $${paramIdx})`;
+    whereParams.push(filters.userId);
     paramIdx++;
   }
 
-  sql += ' ORDER BY sr.created_at DESC';
+  const countResult = await query(
+    `SELECT COUNT(*) as total ${fromJoinSql} ${whereSql}`,
+    whereParams
+  );
+  const total = parseInt(countResult.rows[0].total);
+
+  const params = [...whereParams];
+  let sql = `
+    SELECT sr.*,
+           req_u.first_name as requester_first, req_u.last_name as requester_last,
+           tgt_u.first_name as target_first, tgt_u.last_name as target_last,
+           s.start_time as shift_start, s.end_time as shift_end,
+           l.name as location_name, l.timezone,
+           sk.name as skill_name
+    ${fromJoinSql}
+    ${whereSql}
+    ORDER BY sr.created_at DESC
+  `;
+
+  if (filters.limit !== undefined) {
+    sql += ` LIMIT $${paramIdx++} OFFSET $${paramIdx++}`;
+    params.push(filters.limit, filters.offset || 0);
+  }
 
   const result = await query(sql, params);
-  return result.rows;
+  return { data: result.rows, total };
 }
 
 export async function getAvailableShiftsForPickup(

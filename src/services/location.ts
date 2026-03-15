@@ -109,7 +109,7 @@ export async function getLocationStaff(locationId: string, organizationId: strin
   }
 
   const result = await query(
-    `SELECT u.id, u.first_name, u.last_name, u.email, u.desired_weekly_hours, u.is_active,
+    `SELECT u.id, u.first_name, u.last_name, u.email, u.desired_weekly_hours, u.is_active, u.profile_photo_url,
             ul.certified_at,
             COALESCE(
               json_agg(DISTINCT jsonb_build_object('id', s.id, 'name', s.name))
@@ -123,7 +123,7 @@ export async function getLocationStaff(locationId: string, organizationId: strin
      AND ul.decertified_at IS NULL
      AND u.role = 'staff'
      AND u.is_active = true
-     GROUP BY u.id, u.first_name, u.last_name, u.email, u.desired_weekly_hours, u.is_active, ul.certified_at
+     GROUP BY u.id, u.first_name, u.last_name, u.email, u.desired_weekly_hours, u.is_active, u.profile_photo_url, ul.certified_at
      ORDER BY u.last_name, u.first_name`,
     [locationId]
   );
@@ -133,7 +133,7 @@ export async function getLocationStaff(locationId: string, organizationId: strin
 
 export async function getOnDutyStaff(locationId: string) {
   const result = await query(
-    `SELECT u.id, u.first_name, u.last_name, s.start_time, s.end_time, sk.name as skill
+    `SELECT u.id, u.first_name, u.last_name, u.profile_photo_url, s.start_time, s.end_time, sk.name as skill
      FROM shift_assignments sa
      JOIN shifts s ON sa.shift_id = s.id
      JOIN users u ON sa.user_id = u.id

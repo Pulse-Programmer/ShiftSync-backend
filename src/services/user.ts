@@ -1,14 +1,42 @@
 import { query } from '../db/pool';
 import { AppError } from '../middleware/errorHandler';
+import { uploadProfilePhoto, deleteProfilePhoto } from '../utils/cloudinary';
 
 export async function listUsers(
   organizationId: string,
   requesterRole: string,
-  requesterLocationIds: string[]
+  requesterLocationIds: string[],
+  pagination?: { limit: number; offset: number }
 ) {
+  let whereSql = 'WHERE u.organization_id = $1';
+  const params: any[] = [organizationId];
+
+  // Managers only see staff at their locations
+  if (requesterRole === 'manager') {
+    whereSql += `
+      AND (
+        u.role = 'staff'
+        AND EXISTS (
+          SELECT 1 FROM user_locations ul2
+          WHERE ul2.user_id = u.id
+          AND ul2.decertified_at IS NULL
+          AND ul2.location_id = ANY($2)
+        )
+      )
+    `;
+    params.push(requesterLocationIds);
+  }
+
+  // Count total matching rows
+  const countResult = await query(
+    `SELECT COUNT(DISTINCT u.id) as total FROM users u ${whereSql}`,
+    params
+  );
+  const total = parseInt(countResult.rows[0].total);
+
   let sql = `
     SELECT u.id, u.email, u.first_name, u.last_name, u.role,
-           u.desired_weekly_hours, u.phone, u.is_active, u.created_at,
+           u.desired_weekly_hours, u.phone, u.is_active, u.profile_photo_url, u.created_at,
            COALESCE(
              json_agg(DISTINCT jsonb_build_object('id', s.id, 'name', s.name))
              FILTER (WHERE s.id IS NOT NULL), '[]'
@@ -24,30 +52,18 @@ export async function listUsers(
     LEFT JOIN skills s ON us.skill_id = s.id
     LEFT JOIN user_locations ul ON u.id = ul.user_id
     LEFT JOIN locations l ON ul.location_id = l.id
-    WHERE u.organization_id = $1
+    ${whereSql}
+    GROUP BY u.id ORDER BY u.last_name, u.first_name
   `;
-  const params: any[] = [organizationId];
 
-  // Managers only see staff at their locations
-  if (requesterRole === 'manager') {
-    sql += `
-      AND (
-        u.role = 'staff'
-        AND EXISTS (
-          SELECT 1 FROM user_locations ul2
-          WHERE ul2.user_id = u.id
-          AND ul2.decertified_at IS NULL
-          AND ul2.location_id = ANY($2)
-        )
-      )
-    `;
-    params.push(requesterLocationIds);
+  if (pagination) {
+    const paramIdx = params.length + 1;
+    sql += ` LIMIT $${paramIdx} OFFSET $${paramIdx + 1}`;
+    params.push(pagination.limit, pagination.offset);
   }
 
-  sql += ' GROUP BY u.id ORDER BY u.last_name, u.first_name';
-
   const result = await query(sql, params);
-  return result.rows;
+  return { data: result.rows, total };
 }
 
 export async function getUserById(userId: string, organizationId: string) {
@@ -248,4 +264,42 @@ export async function decertifyLocation(userId: string, locationId: string, orga
   if (result.rows.length === 0) {
     throw new AppError(404, 'Active certification not found');
   }
+}
+
+export async function updateProfilePhoto(userId: string, organizationId: string, fileBuffer: Buffer) {
+  const userCheck = await query(
+    'SELECT id FROM users WHERE id = $1 AND organization_id = $2',
+    [userId, organizationId]
+  );
+  if (userCheck.rows.length === 0) {
+    throw new AppError(404, 'User not found');
+  }
+
+  const url = await uploadProfilePhoto(fileBuffer, userId);
+
+  await query(
+    'UPDATE users SET profile_photo_url = $1, updated_at = NOW() WHERE id = $2',
+    [url, userId]
+  );
+
+  return { profilePhotoUrl: url };
+}
+
+export async function removeProfilePhoto(userId: string, organizationId: string) {
+  const userCheck = await query(
+    'SELECT id, profile_photo_url FROM users WHERE id = $1 AND organization_id = $2',
+    [userId, organizationId]
+  );
+  if (userCheck.rows.length === 0) {
+    throw new AppError(404, 'User not found');
+  }
+
+  if (userCheck.rows[0].profile_photo_url) {
+    await deleteProfilePhoto(userId);
+  }
+
+  await query(
+    'UPDATE users SET profile_photo_url = NULL, updated_at = NOW() WHERE id = $1',
+    [userId]
+  );
 }

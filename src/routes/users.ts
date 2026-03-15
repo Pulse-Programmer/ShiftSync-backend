@@ -1,11 +1,24 @@
 import { Router, Request, Response, NextFunction } from 'express';
 import { z } from 'zod/v4';
+import multer from 'multer';
 import { authenticate, requireRole } from '../middleware/auth';
 import * as userService from '../services/user';
 import * as availabilityService from '../services/availability';
 import { param } from '../utils/params';
+import { parsePagination, paginate } from '../utils/pagination';
 
 const router = Router();
+const upload = multer({
+  storage: multer.memoryStorage(),
+  limits: { fileSize: 5 * 1024 * 1024 }, // 5 MB
+  fileFilter: (_req, file, cb) => {
+    if (file.mimetype.startsWith('image/')) {
+      cb(null, true);
+    } else {
+      cb(new Error('Only image files are allowed'));
+    }
+  },
+});
 
 router.use(authenticate);
 
@@ -22,12 +35,14 @@ router.get('/me/profile', async (req: Request, res: Response, next: NextFunction
 // List users
 router.get('/', async (req: Request, res: Response, next: NextFunction) => {
   try {
-    const result = await userService.listUsers(
+    const pg = parsePagination(req, 50);
+    const { data, total } = await userService.listUsers(
       req.user!.organizationId,
       req.user!.role,
-      req.user!.locationIds
+      req.user!.locationIds,
+      { limit: pg.pageSize, offset: pg.offset }
     );
-    res.json(result);
+    res.json(paginate(data, total, pg));
   } catch (err) {
     next(err);
   }
@@ -133,6 +148,48 @@ router.put('/:id/locations/:locationId/decertify', requireRole('admin', 'manager
   try {
     await userService.decertifyLocation(param(req, 'id'), param(req, 'locationId'), req.user!.organizationId);
     res.json({ message: 'Location decertified' });
+  } catch (err) {
+    next(err);
+  }
+});
+
+// --- Profile photo ---
+
+// Upload profile photo
+router.put('/:id/photo', upload.single('photo'), async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const targetId = param(req, 'id');
+
+    // Users can only upload their own photo; admins/managers can upload for others
+    if (req.user!.role === 'staff' && targetId !== req.user!.userId) {
+      res.status(403).json({ error: 'Can only update your own photo' });
+      return;
+    }
+
+    if (!req.file) {
+      res.status(400).json({ error: 'No image file provided' });
+      return;
+    }
+
+    const result = await userService.updateProfilePhoto(targetId, req.user!.organizationId, req.file.buffer);
+    res.json(result);
+  } catch (err) {
+    next(err);
+  }
+});
+
+// Delete profile photo
+router.delete('/:id/photo', async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const targetId = param(req, 'id');
+
+    if (req.user!.role === 'staff' && targetId !== req.user!.userId) {
+      res.status(403).json({ error: 'Can only delete your own photo' });
+      return;
+    }
+
+    await userService.removeProfilePhoto(targetId, req.user!.organizationId);
+    res.json({ message: 'Photo removed' });
   } catch (err) {
     next(err);
   }

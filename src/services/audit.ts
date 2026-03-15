@@ -48,33 +48,29 @@ export async function queryAuditLogs(filters: {
   limit?: number;
   offset?: number;
 }) {
-  let sql = `
-    SELECT al.*, u.first_name, u.last_name
-    FROM audit_logs al
-    LEFT JOIN users u ON al.performed_by = u.id
+  let whereSql = `
     WHERE u.organization_id = $1
   `;
-  const params: any[] = [filters.organizationId];
+  const whereParams: any[] = [filters.organizationId];
   let paramIdx = 2;
 
   if (filters.entityType) {
-    sql += ` AND al.entity_type = $${paramIdx++}`;
-    params.push(filters.entityType);
+    whereSql += ` AND al.entity_type = $${paramIdx++}`;
+    whereParams.push(filters.entityType);
   }
 
   if (filters.startDate) {
-    sql += ` AND al.performed_at >= $${paramIdx++}::timestamptz`;
-    params.push(filters.startDate);
+    whereSql += ` AND al.performed_at >= $${paramIdx++}::timestamptz`;
+    whereParams.push(filters.startDate);
   }
 
   if (filters.endDate) {
-    sql += ` AND al.performed_at < $${paramIdx++}::timestamptz`;
-    params.push(filters.endDate);
+    whereSql += ` AND al.performed_at < $${paramIdx++}::timestamptz`;
+    whereParams.push(filters.endDate);
   }
 
   if (filters.locationId) {
-    // Filter by location: match shifts/assignments at this location
-    sql += ` AND (
+    whereSql += ` AND (
       (al.entity_type = 'shift' AND al.entity_id IN (SELECT id FROM shifts WHERE location_id = $${paramIdx}))
       OR (al.entity_type = 'assignment' AND al.entity_id IN (
         SELECT sa.id FROM shift_assignments sa JOIN shifts s ON sa.shift_id = s.id WHERE s.location_id = $${paramIdx}
@@ -82,15 +78,28 @@ export async function queryAuditLogs(filters: {
       OR (al.entity_type = 'schedule' AND al.entity_id IN (SELECT id FROM schedules WHERE location_id = $${paramIdx}))
       OR al.entity_type NOT IN ('shift', 'assignment', 'schedule')
     )`;
-    params.push(filters.locationId);
+    whereParams.push(filters.locationId);
     paramIdx++;
   }
 
-  sql += ` ORDER BY al.performed_at DESC LIMIT $${paramIdx++} OFFSET $${paramIdx++}`;
+  const countResult = await query(
+    `SELECT COUNT(*) as total FROM audit_logs al LEFT JOIN users u ON al.performed_by = u.id ${whereSql}`,
+    whereParams
+  );
+  const total = parseInt(countResult.rows[0].total);
+
+  const params = [...whereParams];
+  let sql = `
+    SELECT al.*, u.first_name, u.last_name
+    FROM audit_logs al
+    LEFT JOIN users u ON al.performed_by = u.id
+    ${whereSql}
+    ORDER BY al.performed_at DESC LIMIT $${paramIdx++} OFFSET $${paramIdx++}
+  `;
   params.push(filters.limit || 50, filters.offset || 0);
 
   const result = await query(sql, params);
-  return result.rows;
+  return { data: result.rows, total };
 }
 
 export async function exportAuditLogs(filters: {
@@ -99,7 +108,7 @@ export async function exportAuditLogs(filters: {
   endDate: string;
   locationId?: string;
 }): Promise<string> {
-  const logs = await queryAuditLogs({
+  const { data: logs } = await queryAuditLogs({
     ...filters,
     limit: 10000,
     offset: 0,
