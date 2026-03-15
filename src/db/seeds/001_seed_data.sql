@@ -285,6 +285,12 @@ INSERT INTO availability (user_id, location_id, type, day_of_week, start_time, e
 -- Using relative dates: current week (published) and next week (draft)
 -- ============================================================
 
+-- Past week schedule at Downtown (published) — gives analytics multi-week depth
+INSERT INTO schedules (id, location_id, week_start, status, published_at, published_by) VALUES
+  ('e0000000-0000-4000-a000-000000000006', 'b0000000-0000-4000-a000-000000000001',
+   (date_trunc('week', CURRENT_DATE) - INTERVAL '7 days')::date, 'published',
+   NOW() - INTERVAL '9 days', 'd0000000-0000-4000-a000-000000000002');
+
 -- Current week schedule at Downtown (published)
 INSERT INTO schedules (id, location_id, week_start, status, published_at, published_by) VALUES
   ('e0000000-0000-4000-a000-000000000001', 'b0000000-0000-4000-a000-000000000001',
@@ -367,6 +373,64 @@ INSERT INTO shifts (id, schedule_id, location_id, start_time, end_time, required
    (date_trunc('week', CURRENT_DATE) + INTERVAL '4 days 7 hours') AT TIME ZONE 'America/New_York',
    (date_trunc('week', CURRENT_DATE) + INTERVAL '4 days 19 hours') AT TIME ZONE 'America/New_York',
    'c0000000-0000-4000-a000-000000000002', 1); -- line cook Fri 7am-7pm (12h)
+
+-- ============================================================
+-- PAST WEEK SHIFTS at Downtown — different premium distribution than current week
+-- Last week: Mike + Maria got premiums. This week: Sarah gets them.
+-- Analytics 2w view shows fair rotation over time.
+-- ============================================================
+INSERT INTO shifts (id, schedule_id, location_id, start_time, end_time, required_skill_id, headcount_needed) VALUES
+  -- Mon line cook 9-5 (James 8h)
+  ('f0000000-0000-4000-a000-000000000060', 'e0000000-0000-4000-a000-000000000006', 'b0000000-0000-4000-a000-000000000001',
+   (date_trunc('week', CURRENT_DATE) - INTERVAL '7 days' + INTERVAL '9 hours') AT TIME ZONE 'America/New_York',
+   (date_trunc('week', CURRENT_DATE) - INTERVAL '7 days' + INTERVAL '17 hours') AT TIME ZONE 'America/New_York',
+   'c0000000-0000-4000-a000-000000000002', 1),
+  -- Mon server 9-5 (Maria 8h)
+  ('f0000000-0000-4000-a000-000000000061', 'e0000000-0000-4000-a000-000000000006', 'b0000000-0000-4000-a000-000000000001',
+   (date_trunc('week', CURRENT_DATE) - INTERVAL '7 days' + INTERVAL '9 hours') AT TIME ZONE 'America/New_York',
+   (date_trunc('week', CURRENT_DATE) - INTERVAL '7 days' + INTERVAL '17 hours') AT TIME ZONE 'America/New_York',
+   'c0000000-0000-4000-a000-000000000003', 1),
+  -- Tue bartender 10-6 (Mike 8h)
+  ('f0000000-0000-4000-a000-000000000062', 'e0000000-0000-4000-a000-000000000006', 'b0000000-0000-4000-a000-000000000001',
+   (date_trunc('week', CURRENT_DATE) - INTERVAL '6 days' + INTERVAL '10 hours') AT TIME ZONE 'America/New_York',
+   (date_trunc('week', CURRENT_DATE) - INTERVAL '6 days' + INTERVAL '18 hours') AT TIME ZONE 'America/New_York',
+   'c0000000-0000-4000-a000-000000000001', 1),
+  -- Tue server 9-5 (Sarah 8h)
+  ('f0000000-0000-4000-a000-000000000063', 'e0000000-0000-4000-a000-000000000006', 'b0000000-0000-4000-a000-000000000001',
+   (date_trunc('week', CURRENT_DATE) - INTERVAL '6 days' + INTERVAL '9 hours') AT TIME ZONE 'America/New_York',
+   (date_trunc('week', CURRENT_DATE) - INTERVAL '6 days' + INTERVAL '17 hours') AT TIME ZONE 'America/New_York',
+   'c0000000-0000-4000-a000-000000000003', 1),
+  -- Wed line cook 9-5 (James 8h)
+  ('f0000000-0000-4000-a000-000000000064', 'e0000000-0000-4000-a000-000000000006', 'b0000000-0000-4000-a000-000000000001',
+   (date_trunc('week', CURRENT_DATE) - INTERVAL '5 days' + INTERVAL '9 hours') AT TIME ZONE 'America/New_York',
+   (date_trunc('week', CURRENT_DATE) - INTERVAL '5 days' + INTERVAL '17 hours') AT TIME ZONE 'America/New_York',
+   'c0000000-0000-4000-a000-000000000002', 1),
+  -- Wed server 10-6 (Maria 8h)
+  ('f0000000-0000-4000-a000-000000000065', 'e0000000-0000-4000-a000-000000000006', 'b0000000-0000-4000-a000-000000000001',
+   (date_trunc('week', CURRENT_DATE) - INTERVAL '5 days' + INTERVAL '10 hours') AT TIME ZONE 'America/New_York',
+   (date_trunc('week', CURRENT_DATE) - INTERVAL '5 days' + INTERVAL '18 hours') AT TIME ZONE 'America/New_York',
+   'c0000000-0000-4000-a000-000000000003', 1),
+  -- Fri evening bartender 5-11 (Mike 6h — premium)
+  ('f0000000-0000-4000-a000-000000000066', 'e0000000-0000-4000-a000-000000000006', 'b0000000-0000-4000-a000-000000000001',
+   (date_trunc('week', CURRENT_DATE) - INTERVAL '3 days' + INTERVAL '17 hours') AT TIME ZONE 'America/New_York',
+   (date_trunc('week', CURRENT_DATE) - INTERVAL '3 days' + INTERVAL '23 hours') AT TIME ZONE 'America/New_York',
+   'c0000000-0000-4000-a000-000000000001', 1),
+  -- Fri evening server 5-11 (Maria 6h — premium)
+  ('f0000000-0000-4000-a000-000000000067', 'e0000000-0000-4000-a000-000000000006', 'b0000000-0000-4000-a000-000000000001',
+   (date_trunc('week', CURRENT_DATE) - INTERVAL '3 days' + INTERVAL '17 hours') AT TIME ZONE 'America/New_York',
+   (date_trunc('week', CURRENT_DATE) - INTERVAL '3 days' + INTERVAL '23 hours') AT TIME ZONE 'America/New_York',
+   'c0000000-0000-4000-a000-000000000003', 1);
+
+-- Past week assignments at Downtown
+INSERT INTO shift_assignments (id, shift_id, user_id, assigned_by) VALUES
+  ('aa000000-0000-4000-a000-000000000060', 'f0000000-0000-4000-a000-000000000060', 'd0000000-0000-4000-a000-000000000013', 'd0000000-0000-4000-a000-000000000002'), -- James Mon cook
+  ('aa000000-0000-4000-a000-000000000061', 'f0000000-0000-4000-a000-000000000061', 'd0000000-0000-4000-a000-000000000014', 'd0000000-0000-4000-a000-000000000002'), -- Maria Mon server
+  ('aa000000-0000-4000-a000-000000000062', 'f0000000-0000-4000-a000-000000000062', 'd0000000-0000-4000-a000-000000000011', 'd0000000-0000-4000-a000-000000000002'), -- Mike Tue bartender
+  ('aa000000-0000-4000-a000-000000000063', 'f0000000-0000-4000-a000-000000000063', 'd0000000-0000-4000-a000-000000000010', 'd0000000-0000-4000-a000-000000000002'), -- Sarah Tue server
+  ('aa000000-0000-4000-a000-000000000064', 'f0000000-0000-4000-a000-000000000064', 'd0000000-0000-4000-a000-000000000013', 'd0000000-0000-4000-a000-000000000002'), -- James Wed cook
+  ('aa000000-0000-4000-a000-000000000065', 'f0000000-0000-4000-a000-000000000065', 'd0000000-0000-4000-a000-000000000014', 'd0000000-0000-4000-a000-000000000002'), -- Maria Wed server
+  ('aa000000-0000-4000-a000-000000000066', 'f0000000-0000-4000-a000-000000000066', 'd0000000-0000-4000-a000-000000000011', 'd0000000-0000-4000-a000-000000000002'), -- Mike Fri premium bartender
+  ('aa000000-0000-4000-a000-000000000067', 'f0000000-0000-4000-a000-000000000067', 'd0000000-0000-4000-a000-000000000014', 'd0000000-0000-4000-a000-000000000002'); -- Maria Fri premium server
 
 -- Shifts for Westside current week (Pacific Time)
 INSERT INTO shifts (id, schedule_id, location_id, start_time, end_time, required_skill_id, headcount_needed) VALUES
@@ -810,10 +874,14 @@ INSERT INTO notifications (user_id, type, title, message, metadata, is_read, cre
   ('d0000000-0000-4000-a000-000000000010', 'shift_assigned',
    'New Shift: Friday Bartender', 'You have been assigned to Friday bartender shift (5pm-11pm) at Coastal Eats Downtown. This is a premium shift.',
    '{"shiftId": "f0000000-0000-4000-a000-000000000007"}',
-   true, NOW() - INTERVAL '5 days'),
+   false, NOW() - INTERVAL '5 days'),
   ('d0000000-0000-4000-a000-000000000010', 'schedule_published',
    'Schedule Published: Downtown', 'This week''s schedule at Coastal Eats Downtown has been published. You have 3 shifts totaling 20 hours.',
-   NULL, true, NOW() - INTERVAL '2 days');
+   NULL, false, NOW() - INTERVAL '2 days'),
+  ('d0000000-0000-4000-a000-000000000010', 'shift_reminder',
+   'Shift Tomorrow: Friday Bartender', 'Reminder: You have a bartender shift tomorrow (Friday 5pm-11pm) at Coastal Eats Downtown. This is a premium shift.',
+   '{"shiftId": "f0000000-0000-4000-a000-000000000007"}',
+   false, NOW() - INTERVAL '3 hours');
 
 -- Staff notifications (James Wilson)
 INSERT INTO notifications (user_id, type, title, message, metadata, is_read, created_at) VALUES
