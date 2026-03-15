@@ -44,55 +44,55 @@ INSERT INTO skills (id, organization_id, name) VALUES
 
 -- ============================================================
 -- USERS
--- Password hashes: admin123, manager123, staff123
+-- Password hashes: CoastalAdmin@2026, CoastalMgr@2026, CoastalStaff@2026
 -- Generated with bcrypt salt rounds 12
 -- ============================================================
--- admin123:  $2b$12$36LfHLBc44dV6r95.kodfOpKfuDqsdDg70CRNlZurZi8Rgo.36Urq
--- manager123: $2b$12$nwLQ/wUwiFIDZAQqIcMsceC2yEwPP6xfbLBNOhxEfgTJZrVDbYQDa
--- staff123:   $2b$12$MjNEsfUO5BDLxwgKKS8V1.L6ZdsrFMpCy.sUDQesbkKzt5asVgppy
+-- CoastalAdmin@2026:  $2b$12$2fUV/OOj1OwbqX1pKSJr5OtGW.drhA5Y2GDwboNvUqSVIcYUo455C
+-- CoastalMgr@2026:    $2b$12$RW0JMAoSMyu3yyvSWjVahOA6QlnkFaPEcLLEDd8rnPRP27/.VrQvS
+-- CoastalStaff@2026:  $2b$12$JUERymVXvYF5VJeMZMhsnuDjvIOJERGslueRocMMLFJJ0/CR8nOK.
 
 -- Admin
 INSERT INTO users (id, organization_id, email, password_hash, first_name, last_name, role) VALUES
   ('d0000000-0000-4000-a000-000000000001', 'a0000000-0000-4000-a000-000000000001',
-   'admin@coastaleats.com', '$2b$12$36LfHLBc44dV6r95.kodfOpKfuDqsdDg70CRNlZurZi8Rgo.36Urq', 'Alex', 'Rivera', 'admin');
+   'admin@coastaleats.com', '$2b$12$2fUV/OOj1OwbqX1pKSJr5OtGW.drhA5Y2GDwboNvUqSVIcYUo455C', 'Alex', 'Rivera', 'admin');
 
 -- Managers
 INSERT INTO users (id, organization_id, email, password_hash, first_name, last_name, role) VALUES
   ('d0000000-0000-4000-a000-000000000002', 'a0000000-0000-4000-a000-000000000001',
-   'manager.downtown@coastaleats.com', '$2b$12$nwLQ/wUwiFIDZAQqIcMsceC2yEwPP6xfbLBNOhxEfgTJZrVDbYQDa', 'Jordan', 'Park', 'manager'),
+   'manager.downtown@coastaleats.com', '$2b$12$RW0JMAoSMyu3yyvSWjVahOA6QlnkFaPEcLLEDd8rnPRP27/.VrQvS', 'Jordan', 'Park', 'manager'),
   ('d0000000-0000-4000-a000-000000000003', 'a0000000-0000-4000-a000-000000000001',
-   'manager.midtown@coastaleats.com', '$2b$12$nwLQ/wUwiFIDZAQqIcMsceC2yEwPP6xfbLBNOhxEfgTJZrVDbYQDa', 'Taylor', 'Nguyen', 'manager'),
+   'manager.midtown@coastaleats.com', '$2b$12$RW0JMAoSMyu3yyvSWjVahOA6QlnkFaPEcLLEDd8rnPRP27/.VrQvS', 'Taylor', 'Nguyen', 'manager'),
   ('d0000000-0000-4000-a000-000000000004', 'a0000000-0000-4000-a000-000000000001',
-   'manager.westside@coastaleats.com', '$2b$12$nwLQ/wUwiFIDZAQqIcMsceC2yEwPP6xfbLBNOhxEfgTJZrVDbYQDa', 'Casey', 'Martinez', 'manager'),
+   'manager.westside@coastaleats.com', '$2b$12$RW0JMAoSMyu3yyvSWjVahOA6QlnkFaPEcLLEDd8rnPRP27/.VrQvS', 'Casey', 'Martinez', 'manager'),
   ('d0000000-0000-4000-a000-000000000005', 'a0000000-0000-4000-a000-000000000001',
-   'manager.beachfront@coastaleats.com', '$2b$12$nwLQ/wUwiFIDZAQqIcMsceC2yEwPP6xfbLBNOhxEfgTJZrVDbYQDa', 'Morgan', 'Lee', 'manager');
+   'manager.beachfront@coastaleats.com', '$2b$12$RW0JMAoSMyu3yyvSWjVahOA6QlnkFaPEcLLEDd8rnPRP27/.VrQvS', 'Morgan', 'Lee', 'manager');
 
 -- Staff (12 members)
 INSERT INTO users (id, organization_id, email, password_hash, first_name, last_name, role, desired_weekly_hours) VALUES
   ('d0000000-0000-4000-a000-000000000010', 'a0000000-0000-4000-a000-000000000001',
-   'sarah.johnson@coastaleats.com', '$2b$12$MjNEsfUO5BDLxwgKKS8V1.L6ZdsrFMpCy.sUDQesbkKzt5asVgppy', 'Sarah', 'Johnson', 'staff', 40),
+   'sarah.johnson@coastaleats.com', '$2b$12$JUERymVXvYF5VJeMZMhsnuDjvIOJERGslueRocMMLFJJ0/CR8nOK.', 'Sarah', 'Johnson', 'staff', 40),
   ('d0000000-0000-4000-a000-000000000011', 'a0000000-0000-4000-a000-000000000001',
-   'mike.chen@coastaleats.com', '$2b$12$MjNEsfUO5BDLxwgKKS8V1.L6ZdsrFMpCy.sUDQesbkKzt5asVgppy', 'Mike', 'Chen', 'staff', 35),
+   'mike.chen@coastaleats.com', '$2b$12$JUERymVXvYF5VJeMZMhsnuDjvIOJERGslueRocMMLFJJ0/CR8nOK.', 'Mike', 'Chen', 'staff', 35),
   ('d0000000-0000-4000-a000-000000000012', 'a0000000-0000-4000-a000-000000000001',
-   'emily.davis@coastaleats.com', '$2b$12$MjNEsfUO5BDLxwgKKS8V1.L6ZdsrFMpCy.sUDQesbkKzt5asVgppy', 'Emily', 'Davis', 'staff', 30),
+   'emily.davis@coastaleats.com', '$2b$12$JUERymVXvYF5VJeMZMhsnuDjvIOJERGslueRocMMLFJJ0/CR8nOK.', 'Emily', 'Davis', 'staff', 30),
   ('d0000000-0000-4000-a000-000000000013', 'a0000000-0000-4000-a000-000000000001',
-   'james.wilson@coastaleats.com', '$2b$12$MjNEsfUO5BDLxwgKKS8V1.L6ZdsrFMpCy.sUDQesbkKzt5asVgppy', 'James', 'Wilson', 'staff', 40),
+   'james.wilson@coastaleats.com', '$2b$12$JUERymVXvYF5VJeMZMhsnuDjvIOJERGslueRocMMLFJJ0/CR8nOK.', 'James', 'Wilson', 'staff', 40),
   ('d0000000-0000-4000-a000-000000000014', 'a0000000-0000-4000-a000-000000000001',
-   'maria.garcia@coastaleats.com', '$2b$12$MjNEsfUO5BDLxwgKKS8V1.L6ZdsrFMpCy.sUDQesbkKzt5asVgppy', 'Maria', 'Garcia', 'staff', 25),
+   'maria.garcia@coastaleats.com', '$2b$12$JUERymVXvYF5VJeMZMhsnuDjvIOJERGslueRocMMLFJJ0/CR8nOK.', 'Maria', 'Garcia', 'staff', 25),
   ('d0000000-0000-4000-a000-000000000015', 'a0000000-0000-4000-a000-000000000001',
-   'david.brown@coastaleats.com', '$2b$12$MjNEsfUO5BDLxwgKKS8V1.L6ZdsrFMpCy.sUDQesbkKzt5asVgppy', 'David', 'Brown', 'staff', 40),
+   'david.brown@coastaleats.com', '$2b$12$JUERymVXvYF5VJeMZMhsnuDjvIOJERGslueRocMMLFJJ0/CR8nOK.', 'David', 'Brown', 'staff', 40),
   ('d0000000-0000-4000-a000-000000000016', 'a0000000-0000-4000-a000-000000000001',
-   'lisa.kim@coastaleats.com', '$2b$12$MjNEsfUO5BDLxwgKKS8V1.L6ZdsrFMpCy.sUDQesbkKzt5asVgppy', 'Lisa', 'Kim', 'staff', 20),
+   'lisa.kim@coastaleats.com', '$2b$12$JUERymVXvYF5VJeMZMhsnuDjvIOJERGslueRocMMLFJJ0/CR8nOK.', 'Lisa', 'Kim', 'staff', 20),
   ('d0000000-0000-4000-a000-000000000017', 'a0000000-0000-4000-a000-000000000001',
-   'robert.taylor@coastaleats.com', '$2b$12$MjNEsfUO5BDLxwgKKS8V1.L6ZdsrFMpCy.sUDQesbkKzt5asVgppy', 'Robert', 'Taylor', 'staff', 35),
+   'robert.taylor@coastaleats.com', '$2b$12$JUERymVXvYF5VJeMZMhsnuDjvIOJERGslueRocMMLFJJ0/CR8nOK.', 'Robert', 'Taylor', 'staff', 35),
   ('d0000000-0000-4000-a000-000000000018', 'a0000000-0000-4000-a000-000000000001',
-   'anna.white@coastaleats.com', '$2b$12$MjNEsfUO5BDLxwgKKS8V1.L6ZdsrFMpCy.sUDQesbkKzt5asVgppy', 'Anna', 'White', 'staff', 40),
+   'anna.white@coastaleats.com', '$2b$12$JUERymVXvYF5VJeMZMhsnuDjvIOJERGslueRocMMLFJJ0/CR8nOK.', 'Anna', 'White', 'staff', 40),
   ('d0000000-0000-4000-a000-000000000019', 'a0000000-0000-4000-a000-000000000001',
-   'tom.harris@coastaleats.com', '$2b$12$MjNEsfUO5BDLxwgKKS8V1.L6ZdsrFMpCy.sUDQesbkKzt5asVgppy', 'Tom', 'Harris', 'staff', 30),
+   'tom.harris@coastaleats.com', '$2b$12$JUERymVXvYF5VJeMZMhsnuDjvIOJERGslueRocMMLFJJ0/CR8nOK.', 'Tom', 'Harris', 'staff', 30),
   ('d0000000-0000-4000-a000-000000000020', 'a0000000-0000-4000-a000-000000000001',
-   'jen.clark@coastaleats.com', '$2b$12$MjNEsfUO5BDLxwgKKS8V1.L6ZdsrFMpCy.sUDQesbkKzt5asVgppy', 'Jen', 'Clark', 'staff', 25),
+   'jen.clark@coastaleats.com', '$2b$12$JUERymVXvYF5VJeMZMhsnuDjvIOJERGslueRocMMLFJJ0/CR8nOK.', 'Jen', 'Clark', 'staff', 25),
   ('d0000000-0000-4000-a000-000000000021', 'a0000000-0000-4000-a000-000000000001',
-   'chris.allen@coastaleats.com', '$2b$12$MjNEsfUO5BDLxwgKKS8V1.L6ZdsrFMpCy.sUDQesbkKzt5asVgppy', 'Chris', 'Allen', 'staff', 35);
+   'chris.allen@coastaleats.com', '$2b$12$JUERymVXvYF5VJeMZMhsnuDjvIOJERGslueRocMMLFJJ0/CR8nOK.', 'Chris', 'Allen', 'staff', 35);
 
 -- ============================================================
 -- MANAGER <-> LOCATION ASSIGNMENTS

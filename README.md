@@ -1,102 +1,173 @@
 # ShiftSync Backend
 
-Multi-location staff scheduling API for restaurant groups, handling cross-timezone scheduling, constraint-based assignment validation, real-time notifications, and shift swap workflows.
+Multi-location staff scheduling API for **Coastal Eats**, a restaurant group operating 4 locations across 2 time zones. The platform addresses real-world workforce scheduling challenges: last-minute callouts, overtime cost visibility, fair shift distribution, cross-location staffing conflicts, and centralized schedule oversight.
 
 ## Tech Stack
 
 - **Runtime:** Node.js + TypeScript
 - **Framework:** Express 5
 - **Database:** PostgreSQL (raw SQL via `pg` — no ORM)
-- **Auth:** JWT + bcrypt
+- **Auth:** JWT + bcrypt (12 salt rounds)
 - **Real-time:** Socket.io (JWT-authenticated connections)
 - **Validation:** Zod v4
 - **Timezone:** Luxon + PostgreSQL `AT TIME ZONE`
+- **Hosting:** Railway (API + PostgreSQL)
 
-## Setup
-
-### Prerequisites
-
-- Node.js 18+
-- PostgreSQL 14+
-
-### Installation
-
-```bash
-npm install
-cp .env.example .env
-```
-
-Edit `.env` with your database credentials:
-
-```env
-DATABASE_URL=postgresql://user:password@localhost:5432/shiftsync
-JWT_SECRET=your-secret-key-change-in-production
-PORT=3000
-NODE_ENV=development
-CORS_ORIGIN=http://localhost:5173
-```
-
-### Database Setup
-
-```bash
-# Create the database
-createdb shiftsync
-
-# Run migrations (creates all tables, indexes, enums)
-npm run migrate
-
-# Seed with demo data (Coastal Eats — 4 locations, 17 users, schedules, shifts)
-npm run seed
-```
-
-### Running
-
-```bash
-# Development (hot reload)
-npm run dev
-
-# Production
-npm run build
-npm start
-```
-
-The API runs on `http://localhost:3000` by default.
-
-## Login Credentials (Seed Data)
+## Demo Credentials
 
 | Role | Email | Password |
 |------|-------|----------|
-| Admin | admin@coastaleats.com | admin123 |
-| Manager (Downtown NY) | manager.downtown@coastaleats.com | manager123 |
-| Manager (Midtown NY) | manager.midtown@coastaleats.com | manager123 |
-| Manager (Westside LA) | manager.westside@coastaleats.com | manager123 |
-| Manager (Beachfront LA) | manager.beachfront@coastaleats.com | manager123 |
-| Staff | sarah.johnson@coastaleats.com | staff123 |
-| Staff (cross-timezone) | mike.chen@coastaleats.com | staff123 |
-| Staff | james.wilson@coastaleats.com | staff123 |
+| Admin | admin@coastaleats.com | CoastalAdmin@2026 |
+| Manager (Downtown NY) | manager.downtown@coastaleats.com | CoastalMgr@2026 |
+| Manager (Midtown NY) | manager.midtown@coastaleats.com | CoastalMgr@2026 |
+| Manager (Westside LA) | manager.westside@coastaleats.com | CoastalMgr@2026 |
+| Manager (Beachfront LA) | manager.beachfront@coastaleats.com | CoastalMgr@2026 |
+| Staff | sarah.johnson@coastaleats.com | CoastalStaff@2026 |
+| Staff (cross-timezone) | mike.chen@coastaleats.com | CoastalStaff@2026 |
+| Staff | james.wilson@coastaleats.com | CoastalStaff@2026 |
 
-All other staff use `staff123` as password.
+All other staff use `CoastalStaff@2026` as password.
 
-## Role Guide
+## Seed Data
+
+Pre-populated with realistic data covering edge cases across multiple locations:
+
+- **Organization:** Coastal Eats — 4 locations (Downtown NY, Midtown NY, Westside LA, Beachfront LA)
+- **Users:** 17 users across admin, manager, and staff roles
+- **Skills:** Bartender, Line Cook, Server, Host — assigned per staff member
+- **Cross-location staff:** Mike Chen certified at both Downtown NY (Eastern) and Westside LA (Pacific)
+- **Schedules:** Current-week and past-week published schedules with full shift coverage
+- **Shift assignments:** Varied across skills and premium slots (Friday/Saturday evenings)
+- **Swap requests:** Approved, rejected, and pending drop requests demonstrating the full workflow lifecycle
+- **Availability:** Recurring weekly patterns and one-off exception overrides per user per location
+- **Notifications:** Mix of read and unread across roles (shift assignments, schedule publications, swap updates, shift reminders)
+- **Invitations:** Pending and accepted invitations showing the onboarding pipeline
+- **Audit logs:** Shift creation, assignment, and swap approval/rejection history
+
+## Roles & Permissions
 
 ### Admin
+- Corporate oversight across all locations
 - Creates/manages the organization, locations, and skills
 - Invites managers and staff
-- Full access to all locations, schedules, analytics, and audit logs
+- Full access to all schedules, analytics, and audit logs
 - Can override any constraint
 
 ### Manager
 - Scoped to assigned location(s) — Casey Martinez manages both Westside and Beachfront
-- Creates schedules, assigns shifts, publishes schedules
+- Creates schedules, defines shifts with required skills and headcount, assigns staff
+- Publishes/unpublishes schedules (before configurable 48-hour cutoff)
 - Approves/rejects swap and drop requests
 - Views overtime dashboard and fairness analytics for their locations
 
 ### Staff
 - Views published schedules for certified locations
 - Sets recurring and exception availability per location
-- Submits swap requests (peer-to-peer) and drop requests
-- Picks up available dropped shifts
+- Submits swap requests (peer-to-peer) and drop requests (max 3 pending)
+- Picks up available dropped shifts matching their skills and certifications
 - Manages notification preferences
+
+## Core Capabilities
+
+### 1. Shift Scheduling
+
+Managers create shifts with location, date/time, required skill, and headcount. Staff are manually assigned with full constraint validation. Schedules are published to make them visible to staff, with unpublish allowed before a 48-hour cutoff.
+
+### 2. Constraint Engine
+
+Assignment validation runs through a dedicated constraint engine (`src/engine/`) rather than being scattered across route handlers. Every assignment — including swap approvals and shift pickups — passes through the same validation pipeline.
+
+**8 constraints evaluated in parallel:**
+
+| Constraint | Severity | Description |
+|-----------|----------|-------------|
+| DOUBLE_BOOKING | error | No overlapping shifts across any location |
+| REST_PERIOD | error | Minimum 10 hours between shifts |
+| SKILL_MATCH | error | Staff must have the required skill |
+| LOCATION_CERTIFICATION | error | Staff must be certified at the location |
+| AVAILABILITY | error | Shift must fall within availability window |
+| DAILY_HOURS | warn >8h, error >12h | Daily hour limits |
+| WEEKLY_HOURS | warn >=35h, error >=40h | Weekly hour / overtime threshold |
+| CONSECUTIVE_DAYS | warn 6th, error 7th | Consecutive working day limits |
+
+Each constraint returns a structured `ConstraintResult` with severity, message, and details. The validator aggregates results — `error` severity blocks the assignment, `warning` allows it with feedback.
+
+When constraints fail, the **suggester** (`src/engine/suggester.ts`) automatically queries eligible staff and returns the top 5 alternatives sorted by fewest warnings, addressing the requirement to suggest alternatives (e.g., "Sarah is unavailable, but John and Maria have the required skill and availability").
+
+Managers can provide overrides for overridable constraints (consecutive days, weekly hours) with a documented reason.
+
+### 3. Shift Swapping & Coverage
+
+Staff can request peer-to-peer swaps, offer shifts for drop, and pick up available dropped shifts. The full workflow:
+
+```
+SWAP:   pending_peer → pending_manager → approved | rejected
+                     ↘ cancelled
+
+DROP:   pending_manager → approved | rejected | expired
+                        ↘ cancelled
+        (pickup sets target_user_id while still pending_manager)
+```
+
+- Staff can cancel any pending request they created
+- Peer accepts advance swap to manager approval
+- Manager approval re-validates constraints before finalizing
+- Material shift edits (time >30 min, location, skill changes) auto-cancel pending swaps with notification
+- Max 3 pending swap/drop requests per staff member
+- Drop requests expire 24 hours before the shift starts if unclaimed
+
+### 4. Overtime & Labor Compliance
+
+Tracks and warns about weekly hours approaching 40h (warning at 35+), daily hours exceeding 8h (warning) or 12h (hard block), 6th consecutive day (warning), and 7th consecutive day (requires manager override with documented reason).
+
+**Overtime visualization includes:**
+- Dashboard showing projected overtime costs for the current week
+- Highlighting which specific assignments push staff into overtime
+- Per-user weekly hour breakdown with drill-down detail
+
+### 5. Schedule Fairness Analytics
+
+- Distribution report: hours assigned per staff member over selectable periods (1w, 2w, 4w, 8w)
+- Premium shift tracking: Friday/Saturday evening shifts (5pm+) tagged as premium
+- Fairness score: composite metric showing whether premium shifts are distributed equitably
+- Under/over-schedule visibility: staff compared against their stated desired hours
+
+### 6. Real-Time Features (WebSocket)
+
+Socket.io connections authenticate via JWT on handshake. Users auto-join rooms:
+- `user:{id}` — personal notifications
+- `location:{id}` — location-wide events (for each certified location)
+- `managers:{locationId}` — manager-only events
+
+Events emitted: `notification:new`, `schedule:published`, `shift:updated`, `swap:new_drop`, `assignment:conflict`.
+
+- Schedule publish/modify pushes updates to affected staff without refresh
+- Swap request submission and resolution notify relevant parties in real-time
+- "On-duty now" dashboard shows who is currently working at each location, updating live
+- Simultaneous assignment attempts result in 409 Conflict with immediate notification
+
+### 7. Notifications & Communication
+
+- Staff receive: new shift assignments, shift changes, swap request updates, schedule published, shift reminders
+- Managers receive: swap/drop requests needing approval, overtime warnings, staff availability changes
+- Configurable preferences: in-app only, or in-app + email simulation
+- All notifications persisted with read/unread status in a notification center
+
+### 8. Timezone Handling
+
+- All timestamps stored as `TIMESTAMPTZ` (UTC) in PostgreSQL
+- Each location has an IANA timezone identifier (e.g., `America/New_York`, `America/Los_Angeles`)
+- Availability is stored per user **per location**, allowing different windows for the same staff across timezones
+- Recurring availability resolves at query time using the location's timezone
+- Shift creation converts local times to UTC via Luxon before storage
+- Display conversion happens at the API boundary
+- Overnight shifts (e.g., 11pm–3am) handled as a single continuous shift
+
+### 9. Audit Trail
+
+- All schedule changes logged: who made the change, when, before/after state
+- Managers can view the history of any shift
+- Admins can export audit logs for any date range and location (CSV)
 
 ## API Endpoints
 
@@ -108,7 +179,7 @@ All other staff use `staff123` as password.
 | POST | /api/auth/accept-invite | Accept invitation and create account |
 | GET | /api/auth/me | Get current user profile |
 
-### Users
+### Users & Availability
 | Method | Path | Description |
 |--------|------|-------------|
 | GET | /api/users | List users (role-scoped) |
@@ -194,10 +265,9 @@ All other staff use `staff123` as password.
 | GET | /api/audit/shift/:id | Shift change history |
 | GET | /api/audit/export | Export as CSV |
 
-### Other
+### Skills & Invitations
 | Method | Path | Description |
 |--------|------|-------------|
-| GET | /api/health | Health check |
 | GET | /api/skills | List skills |
 | POST | /api/skills | Create skill |
 | DELETE | /api/skills/:id | Delete skill |
@@ -205,31 +275,15 @@ All other staff use `staff123` as password.
 | GET | /api/invitations | List invitations |
 | PUT | /api/invitations/:id/revoke | Revoke invitation |
 | POST | /api/invitations/:id/resend | Resend invitation |
+| GET | /api/health | Health check |
 
 ## Architecture
 
 ### Constraint Engine
 
-Assignment validation runs through a dedicated constraint engine (`src/engine/`) rather than being scattered across route handlers. Every assignment (including swap approvals and shift pickups) passes through the same validation pipeline.
-
-**8 constraints run in parallel:**
-
-| Constraint | Severity | Description |
-|-----------|----------|-------------|
-| DOUBLE_BOOKING | error | No overlapping shifts across any location |
-| REST_PERIOD | error | Minimum 10 hours between shifts |
-| SKILL_MATCH | error | Staff must have the required skill |
-| LOCATION_CERTIFICATION | error | Staff must be certified at the location |
-| AVAILABILITY | error | Shift must fall within availability window |
-| DAILY_HOURS | warn >8h, error >12h | Daily hour limits |
-| WEEKLY_HOURS | warn >=35h, error >=40h | Weekly hour / overtime threshold |
-| CONSECUTIVE_DAYS | warn 6th, error 7th | Consecutive working day limits |
-
-Each constraint returns a structured `ConstraintResult` with severity, message, and details. The validator aggregates results — `error` severity blocks the assignment, `warning` allows it with feedback.
+Assignment validation runs through a dedicated constraint engine (`src/engine/`) rather than being scattered across route handlers. Every assignment (including swap approvals and shift pickups) passes through the same validation pipeline. Each constraint returns a structured `ConstraintResult` with severity, message, and details. The validator aggregates results — `error` severity blocks the assignment, `warning` allows it with feedback.
 
 When constraints fail, the **suggester** (`src/engine/suggester.ts`) automatically queries eligible staff and returns the top 5 alternatives sorted by fewest warnings.
-
-Managers can provide overrides for overridable constraints (consecutive days, weekly hours) with a documented reason.
 
 ### Timezone Handling
 
@@ -269,7 +323,7 @@ DROP:   pending_manager → approved | rejected | expired
 
 Shift assignments use an INSERT-with-NOT-EXISTS pattern to prevent concurrent double-assignment. If two managers try to assign the same staff member simultaneously, the second gets a 409 Conflict.
 
-## Design Decisions
+## Design Decisions (Intentional Ambiguities)
 
 1. **De-certified staff**: Historical shifts remain intact. Staff cannot be assigned new shifts at that location. A `decertified_at` timestamp preserves the record.
 
