@@ -288,36 +288,36 @@ INSERT INTO availability (user_id, location_id, type, day_of_week, start_time, e
 -- Past week schedule at Downtown (published) — gives analytics multi-week depth
 INSERT INTO schedules (id, location_id, week_start, status, published_at, published_by) VALUES
   ('e0000000-0000-4000-a000-000000000006', 'b0000000-0000-4000-a000-000000000001',
-   (date_trunc('week', CURRENT_DATE) - INTERVAL '7 days')::date, 'published',
+   (date_trunc('week', CURRENT_DATE)::timestamp - INTERVAL '7 days')::date, 'published',
    NOW() - INTERVAL '9 days', 'd0000000-0000-4000-a000-000000000002');
 
 -- Current week schedule at Downtown (published)
 INSERT INTO schedules (id, location_id, week_start, status, published_at, published_by) VALUES
   ('e0000000-0000-4000-a000-000000000001', 'b0000000-0000-4000-a000-000000000001',
-   date_trunc('week', CURRENT_DATE)::date, 'published', NOW() - INTERVAL '2 days',
+   date_trunc('week', CURRENT_DATE)::timestamp::date, 'published', NOW() - INTERVAL '2 days',
    'd0000000-0000-4000-a000-000000000002');
 
 -- Next week schedule at Downtown (draft)
 INSERT INTO schedules (id, location_id, week_start, status) VALUES
   ('e0000000-0000-4000-a000-000000000002', 'b0000000-0000-4000-a000-000000000001',
-   (date_trunc('week', CURRENT_DATE) + INTERVAL '7 days')::date, 'draft');
+   (date_trunc('week', CURRENT_DATE)::timestamp + INTERVAL '7 days')::date, 'draft');
 
 -- Current week schedule at Midtown (published)
 INSERT INTO schedules (id, location_id, week_start, status, published_at, published_by) VALUES
   ('e0000000-0000-4000-a000-000000000004', 'b0000000-0000-4000-a000-000000000002',
-   date_trunc('week', CURRENT_DATE)::date, 'published', NOW() - INTERVAL '2 days',
+   date_trunc('week', CURRENT_DATE)::timestamp::date, 'published', NOW() - INTERVAL '2 days',
    'd0000000-0000-4000-a000-000000000003');
 
 -- Current week schedule at Westside (published)
 INSERT INTO schedules (id, location_id, week_start, status, published_at, published_by) VALUES
   ('e0000000-0000-4000-a000-000000000003', 'b0000000-0000-4000-a000-000000000003',
-   date_trunc('week', CURRENT_DATE)::date, 'published', NOW() - INTERVAL '3 days',
+   date_trunc('week', CURRENT_DATE)::timestamp::date, 'published', NOW() - INTERVAL '3 days',
    'd0000000-0000-4000-a000-000000000004');
 
 -- Current week schedule at Beachfront (published)
 INSERT INTO schedules (id, location_id, week_start, status, published_at, published_by) VALUES
   ('e0000000-0000-4000-a000-000000000005', 'b0000000-0000-4000-a000-000000000004',
-   date_trunc('week', CURRENT_DATE)::date, 'published', NOW() - INTERVAL '1 day',
+   date_trunc('week', CURRENT_DATE)::timestamp::date, 'published', NOW() - INTERVAL '1 day',
    'd0000000-0000-4000-a000-000000000005');
 
 -- Shifts for Downtown current week (Eastern Time)
@@ -325,53 +325,53 @@ INSERT INTO schedules (id, location_id, week_start, status, published_at, publis
 INSERT INTO shifts (id, schedule_id, location_id, start_time, end_time, required_skill_id, headcount_needed) VALUES
   -- Monday
   ('f0000000-0000-4000-a000-000000000001', 'e0000000-0000-4000-a000-000000000001', 'b0000000-0000-4000-a000-000000000001',
-   (date_trunc('week', CURRENT_DATE) + INTERVAL '9 hours') AT TIME ZONE 'America/New_York',
-   (date_trunc('week', CURRENT_DATE) + INTERVAL '17 hours') AT TIME ZONE 'America/New_York',
+   (date_trunc('week', CURRENT_DATE)::timestamp + INTERVAL '9 hours') AT TIME ZONE 'America/New_York',
+   (date_trunc('week', CURRENT_DATE)::timestamp + INTERVAL '17 hours') AT TIME ZONE 'America/New_York',
    'c0000000-0000-4000-a000-000000000002', 2), -- line cook, 8h
   ('f0000000-0000-4000-a000-000000000002', 'e0000000-0000-4000-a000-000000000001', 'b0000000-0000-4000-a000-000000000001',
-   (date_trunc('week', CURRENT_DATE) + INTERVAL '9 hours') AT TIME ZONE 'America/New_York',
-   (date_trunc('week', CURRENT_DATE) + INTERVAL '17 hours') AT TIME ZONE 'America/New_York',
+   (date_trunc('week', CURRENT_DATE)::timestamp + INTERVAL '9 hours') AT TIME ZONE 'America/New_York',
+   (date_trunc('week', CURRENT_DATE)::timestamp + INTERVAL '17 hours') AT TIME ZONE 'America/New_York',
    'c0000000-0000-4000-a000-000000000003', 2), -- server, 8h
   -- Tuesday
   ('f0000000-0000-4000-a000-000000000003', 'e0000000-0000-4000-a000-000000000001', 'b0000000-0000-4000-a000-000000000001',
-   (date_trunc('week', CURRENT_DATE) + INTERVAL '1 day 9 hours') AT TIME ZONE 'America/New_York',
-   (date_trunc('week', CURRENT_DATE) + INTERVAL '1 day 17 hours') AT TIME ZONE 'America/New_York',
+   (date_trunc('week', CURRENT_DATE)::timestamp + INTERVAL '1 day 9 hours') AT TIME ZONE 'America/New_York',
+   (date_trunc('week', CURRENT_DATE)::timestamp + INTERVAL '1 day 17 hours') AT TIME ZONE 'America/New_York',
    'c0000000-0000-4000-a000-000000000002', 1), -- line cook
   ('f0000000-0000-4000-a000-000000000004', 'e0000000-0000-4000-a000-000000000001', 'b0000000-0000-4000-a000-000000000001',
-   (date_trunc('week', CURRENT_DATE) + INTERVAL '1 day 9 hours') AT TIME ZONE 'America/New_York',
-   (date_trunc('week', CURRENT_DATE) + INTERVAL '1 day 17 hours') AT TIME ZONE 'America/New_York',
+   (date_trunc('week', CURRENT_DATE)::timestamp + INTERVAL '1 day 9 hours') AT TIME ZONE 'America/New_York',
+   (date_trunc('week', CURRENT_DATE)::timestamp + INTERVAL '1 day 17 hours') AT TIME ZONE 'America/New_York',
    'c0000000-0000-4000-a000-000000000001', 1), -- bartender
   -- Wednesday
   ('f0000000-0000-4000-a000-000000000005', 'e0000000-0000-4000-a000-000000000001', 'b0000000-0000-4000-a000-000000000001',
-   (date_trunc('week', CURRENT_DATE) + INTERVAL '2 days 9 hours') AT TIME ZONE 'America/New_York',
-   (date_trunc('week', CURRENT_DATE) + INTERVAL '2 days 17 hours') AT TIME ZONE 'America/New_York',
+   (date_trunc('week', CURRENT_DATE)::timestamp + INTERVAL '2 days 9 hours') AT TIME ZONE 'America/New_York',
+   (date_trunc('week', CURRENT_DATE)::timestamp + INTERVAL '2 days 17 hours') AT TIME ZONE 'America/New_York',
    'c0000000-0000-4000-a000-000000000002', 1), -- line cook
   -- Thursday
   ('f0000000-0000-4000-a000-000000000006', 'e0000000-0000-4000-a000-000000000001', 'b0000000-0000-4000-a000-000000000001',
-   (date_trunc('week', CURRENT_DATE) + INTERVAL '3 days 9 hours') AT TIME ZONE 'America/New_York',
-   (date_trunc('week', CURRENT_DATE) + INTERVAL '3 days 17 hours') AT TIME ZONE 'America/New_York',
+   (date_trunc('week', CURRENT_DATE)::timestamp + INTERVAL '3 days 9 hours') AT TIME ZONE 'America/New_York',
+   (date_trunc('week', CURRENT_DATE)::timestamp + INTERVAL '3 days 17 hours') AT TIME ZONE 'America/New_York',
    'c0000000-0000-4000-a000-000000000002', 1), -- line cook
   -- Friday evening (premium shift)
   ('f0000000-0000-4000-a000-000000000007', 'e0000000-0000-4000-a000-000000000001', 'b0000000-0000-4000-a000-000000000001',
-   (date_trunc('week', CURRENT_DATE) + INTERVAL '4 days 17 hours') AT TIME ZONE 'America/New_York',
-   (date_trunc('week', CURRENT_DATE) + INTERVAL '4 days 23 hours') AT TIME ZONE 'America/New_York',
+   (date_trunc('week', CURRENT_DATE)::timestamp + INTERVAL '4 days 17 hours') AT TIME ZONE 'America/New_York',
+   (date_trunc('week', CURRENT_DATE)::timestamp + INTERVAL '4 days 23 hours') AT TIME ZONE 'America/New_York',
    'c0000000-0000-4000-a000-000000000001', 2), -- bartender, premium
   -- Saturday evening (premium shift)
   ('f0000000-0000-4000-a000-000000000008', 'e0000000-0000-4000-a000-000000000001', 'b0000000-0000-4000-a000-000000000001',
-   (date_trunc('week', CURRENT_DATE) + INTERVAL '5 days 17 hours') AT TIME ZONE 'America/New_York',
-   (date_trunc('week', CURRENT_DATE) + INTERVAL '5 days 23 hours') AT TIME ZONE 'America/New_York',
+   (date_trunc('week', CURRENT_DATE)::timestamp + INTERVAL '5 days 17 hours') AT TIME ZONE 'America/New_York',
+   (date_trunc('week', CURRENT_DATE)::timestamp + INTERVAL '5 days 23 hours') AT TIME ZONE 'America/New_York',
    'c0000000-0000-4000-a000-000000000003', 2), -- server, premium
   -- Sunday overnight shift (11pm Sun -> 3am Mon) for next week testing
   ('f0000000-0000-4000-a000-000000000009', 'e0000000-0000-4000-a000-000000000001', 'b0000000-0000-4000-a000-000000000001',
-   (date_trunc('week', CURRENT_DATE) + INTERVAL '6 days 23 hours') AT TIME ZONE 'America/New_York',
-   (date_trunc('week', CURRENT_DATE) + INTERVAL '7 days 3 hours') AT TIME ZONE 'America/New_York',
+   (date_trunc('week', CURRENT_DATE)::timestamp + INTERVAL '6 days 23 hours') AT TIME ZONE 'America/New_York',
+   (date_trunc('week', CURRENT_DATE)::timestamp + INTERVAL '7 days 3 hours') AT TIME ZONE 'America/New_York',
    'c0000000-0000-4000-a000-000000000001', 1); -- bartender, overnight
 
 -- Downtown Friday day shift (pushes James to 44h = overtime)
 INSERT INTO shifts (id, schedule_id, location_id, start_time, end_time, required_skill_id, headcount_needed) VALUES
   ('f0000000-0000-4000-a000-000000000010', 'e0000000-0000-4000-a000-000000000001', 'b0000000-0000-4000-a000-000000000001',
-   (date_trunc('week', CURRENT_DATE) + INTERVAL '4 days 7 hours') AT TIME ZONE 'America/New_York',
-   (date_trunc('week', CURRENT_DATE) + INTERVAL '4 days 19 hours') AT TIME ZONE 'America/New_York',
+   (date_trunc('week', CURRENT_DATE)::timestamp + INTERVAL '4 days 7 hours') AT TIME ZONE 'America/New_York',
+   (date_trunc('week', CURRENT_DATE)::timestamp + INTERVAL '4 days 19 hours') AT TIME ZONE 'America/New_York',
    'c0000000-0000-4000-a000-000000000002', 1); -- line cook Fri 7am-7pm (12h)
 
 -- ============================================================
@@ -382,43 +382,43 @@ INSERT INTO shifts (id, schedule_id, location_id, start_time, end_time, required
 INSERT INTO shifts (id, schedule_id, location_id, start_time, end_time, required_skill_id, headcount_needed) VALUES
   -- Mon line cook 9-5 (James 8h)
   ('f0000000-0000-4000-a000-000000000060', 'e0000000-0000-4000-a000-000000000006', 'b0000000-0000-4000-a000-000000000001',
-   (date_trunc('week', CURRENT_DATE) - INTERVAL '7 days' + INTERVAL '9 hours') AT TIME ZONE 'America/New_York',
-   (date_trunc('week', CURRENT_DATE) - INTERVAL '7 days' + INTERVAL '17 hours') AT TIME ZONE 'America/New_York',
+   (date_trunc('week', CURRENT_DATE)::timestamp - INTERVAL '7 days' + INTERVAL '9 hours') AT TIME ZONE 'America/New_York',
+   (date_trunc('week', CURRENT_DATE)::timestamp - INTERVAL '7 days' + INTERVAL '17 hours') AT TIME ZONE 'America/New_York',
    'c0000000-0000-4000-a000-000000000002', 1),
   -- Mon server 9-5 (Maria 8h)
   ('f0000000-0000-4000-a000-000000000061', 'e0000000-0000-4000-a000-000000000006', 'b0000000-0000-4000-a000-000000000001',
-   (date_trunc('week', CURRENT_DATE) - INTERVAL '7 days' + INTERVAL '9 hours') AT TIME ZONE 'America/New_York',
-   (date_trunc('week', CURRENT_DATE) - INTERVAL '7 days' + INTERVAL '17 hours') AT TIME ZONE 'America/New_York',
+   (date_trunc('week', CURRENT_DATE)::timestamp - INTERVAL '7 days' + INTERVAL '9 hours') AT TIME ZONE 'America/New_York',
+   (date_trunc('week', CURRENT_DATE)::timestamp - INTERVAL '7 days' + INTERVAL '17 hours') AT TIME ZONE 'America/New_York',
    'c0000000-0000-4000-a000-000000000003', 1),
   -- Tue bartender 10-6 (Mike 8h)
   ('f0000000-0000-4000-a000-000000000062', 'e0000000-0000-4000-a000-000000000006', 'b0000000-0000-4000-a000-000000000001',
-   (date_trunc('week', CURRENT_DATE) - INTERVAL '6 days' + INTERVAL '10 hours') AT TIME ZONE 'America/New_York',
-   (date_trunc('week', CURRENT_DATE) - INTERVAL '6 days' + INTERVAL '18 hours') AT TIME ZONE 'America/New_York',
+   (date_trunc('week', CURRENT_DATE)::timestamp - INTERVAL '6 days' + INTERVAL '10 hours') AT TIME ZONE 'America/New_York',
+   (date_trunc('week', CURRENT_DATE)::timestamp - INTERVAL '6 days' + INTERVAL '18 hours') AT TIME ZONE 'America/New_York',
    'c0000000-0000-4000-a000-000000000001', 1),
   -- Tue server 9-5 (Sarah 8h)
   ('f0000000-0000-4000-a000-000000000063', 'e0000000-0000-4000-a000-000000000006', 'b0000000-0000-4000-a000-000000000001',
-   (date_trunc('week', CURRENT_DATE) - INTERVAL '6 days' + INTERVAL '9 hours') AT TIME ZONE 'America/New_York',
-   (date_trunc('week', CURRENT_DATE) - INTERVAL '6 days' + INTERVAL '17 hours') AT TIME ZONE 'America/New_York',
+   (date_trunc('week', CURRENT_DATE)::timestamp - INTERVAL '6 days' + INTERVAL '9 hours') AT TIME ZONE 'America/New_York',
+   (date_trunc('week', CURRENT_DATE)::timestamp - INTERVAL '6 days' + INTERVAL '17 hours') AT TIME ZONE 'America/New_York',
    'c0000000-0000-4000-a000-000000000003', 1),
   -- Wed line cook 9-5 (James 8h)
   ('f0000000-0000-4000-a000-000000000064', 'e0000000-0000-4000-a000-000000000006', 'b0000000-0000-4000-a000-000000000001',
-   (date_trunc('week', CURRENT_DATE) - INTERVAL '5 days' + INTERVAL '9 hours') AT TIME ZONE 'America/New_York',
-   (date_trunc('week', CURRENT_DATE) - INTERVAL '5 days' + INTERVAL '17 hours') AT TIME ZONE 'America/New_York',
+   (date_trunc('week', CURRENT_DATE)::timestamp - INTERVAL '5 days' + INTERVAL '9 hours') AT TIME ZONE 'America/New_York',
+   (date_trunc('week', CURRENT_DATE)::timestamp - INTERVAL '5 days' + INTERVAL '17 hours') AT TIME ZONE 'America/New_York',
    'c0000000-0000-4000-a000-000000000002', 1),
   -- Wed server 10-6 (Maria 8h)
   ('f0000000-0000-4000-a000-000000000065', 'e0000000-0000-4000-a000-000000000006', 'b0000000-0000-4000-a000-000000000001',
-   (date_trunc('week', CURRENT_DATE) - INTERVAL '5 days' + INTERVAL '10 hours') AT TIME ZONE 'America/New_York',
-   (date_trunc('week', CURRENT_DATE) - INTERVAL '5 days' + INTERVAL '18 hours') AT TIME ZONE 'America/New_York',
+   (date_trunc('week', CURRENT_DATE)::timestamp - INTERVAL '5 days' + INTERVAL '10 hours') AT TIME ZONE 'America/New_York',
+   (date_trunc('week', CURRENT_DATE)::timestamp - INTERVAL '5 days' + INTERVAL '18 hours') AT TIME ZONE 'America/New_York',
    'c0000000-0000-4000-a000-000000000003', 1),
   -- Fri evening bartender 5-11 (Mike 6h — premium)
   ('f0000000-0000-4000-a000-000000000066', 'e0000000-0000-4000-a000-000000000006', 'b0000000-0000-4000-a000-000000000001',
-   (date_trunc('week', CURRENT_DATE) - INTERVAL '3 days' + INTERVAL '17 hours') AT TIME ZONE 'America/New_York',
-   (date_trunc('week', CURRENT_DATE) - INTERVAL '3 days' + INTERVAL '23 hours') AT TIME ZONE 'America/New_York',
+   (date_trunc('week', CURRENT_DATE)::timestamp - INTERVAL '3 days' + INTERVAL '17 hours') AT TIME ZONE 'America/New_York',
+   (date_trunc('week', CURRENT_DATE)::timestamp - INTERVAL '3 days' + INTERVAL '23 hours') AT TIME ZONE 'America/New_York',
    'c0000000-0000-4000-a000-000000000001', 1),
   -- Fri evening server 5-11 (Maria 6h — premium)
   ('f0000000-0000-4000-a000-000000000067', 'e0000000-0000-4000-a000-000000000006', 'b0000000-0000-4000-a000-000000000001',
-   (date_trunc('week', CURRENT_DATE) - INTERVAL '3 days' + INTERVAL '17 hours') AT TIME ZONE 'America/New_York',
-   (date_trunc('week', CURRENT_DATE) - INTERVAL '3 days' + INTERVAL '23 hours') AT TIME ZONE 'America/New_York',
+   (date_trunc('week', CURRENT_DATE)::timestamp - INTERVAL '3 days' + INTERVAL '17 hours') AT TIME ZONE 'America/New_York',
+   (date_trunc('week', CURRENT_DATE)::timestamp - INTERVAL '3 days' + INTERVAL '23 hours') AT TIME ZONE 'America/New_York',
    'c0000000-0000-4000-a000-000000000003', 1);
 
 -- Past week assignments at Downtown
@@ -435,126 +435,126 @@ INSERT INTO shift_assignments (id, shift_id, user_id, assigned_by) VALUES
 -- Shifts for Westside current week (Pacific Time)
 INSERT INTO shifts (id, schedule_id, location_id, start_time, end_time, required_skill_id, headcount_needed) VALUES
   ('f0000000-0000-4000-a000-000000000020', 'e0000000-0000-4000-a000-000000000003', 'b0000000-0000-4000-a000-000000000003',
-   (date_trunc('week', CURRENT_DATE) + INTERVAL '9 hours') AT TIME ZONE 'America/Los_Angeles',
-   (date_trunc('week', CURRENT_DATE) + INTERVAL '17 hours') AT TIME ZONE 'America/Los_Angeles',
+   (date_trunc('week', CURRENT_DATE)::timestamp + INTERVAL '9 hours') AT TIME ZONE 'America/Los_Angeles',
+   (date_trunc('week', CURRENT_DATE)::timestamp + INTERVAL '17 hours') AT TIME ZONE 'America/Los_Angeles',
    'c0000000-0000-4000-a000-000000000003', 2), -- server Mon
   ('f0000000-0000-4000-a000-000000000021', 'e0000000-0000-4000-a000-000000000003', 'b0000000-0000-4000-a000-000000000003',
-   (date_trunc('week', CURRENT_DATE) + INTERVAL '4 days 17 hours') AT TIME ZONE 'America/Los_Angeles',
-   (date_trunc('week', CURRENT_DATE) + INTERVAL '4 days 23 hours') AT TIME ZONE 'America/Los_Angeles',
+   (date_trunc('week', CURRENT_DATE)::timestamp + INTERVAL '4 days 17 hours') AT TIME ZONE 'America/Los_Angeles',
+   (date_trunc('week', CURRENT_DATE)::timestamp + INTERVAL '4 days 23 hours') AT TIME ZONE 'America/Los_Angeles',
    'c0000000-0000-4000-a000-000000000001', 1); -- bartender Fri evening (premium)
 
 -- Additional Westside shifts (Pacific Time)
 INSERT INTO shifts (id, schedule_id, location_id, start_time, end_time, required_skill_id, headcount_needed) VALUES
   -- Tuesday server 9-5
   ('f0000000-0000-4000-a000-000000000022', 'e0000000-0000-4000-a000-000000000003', 'b0000000-0000-4000-a000-000000000003',
-   (date_trunc('week', CURRENT_DATE) + INTERVAL '1 day 9 hours') AT TIME ZONE 'America/Los_Angeles',
-   (date_trunc('week', CURRENT_DATE) + INTERVAL '1 day 17 hours') AT TIME ZONE 'America/Los_Angeles',
+   (date_trunc('week', CURRENT_DATE)::timestamp + INTERVAL '1 day 9 hours') AT TIME ZONE 'America/Los_Angeles',
+   (date_trunc('week', CURRENT_DATE)::timestamp + INTERVAL '1 day 17 hours') AT TIME ZONE 'America/Los_Angeles',
    'c0000000-0000-4000-a000-000000000003', 1),
   -- Wednesday line cook 9-5
   ('f0000000-0000-4000-a000-000000000023', 'e0000000-0000-4000-a000-000000000003', 'b0000000-0000-4000-a000-000000000003',
-   (date_trunc('week', CURRENT_DATE) + INTERVAL '2 days 9 hours') AT TIME ZONE 'America/Los_Angeles',
-   (date_trunc('week', CURRENT_DATE) + INTERVAL '2 days 17 hours') AT TIME ZONE 'America/Los_Angeles',
+   (date_trunc('week', CURRENT_DATE)::timestamp + INTERVAL '2 days 9 hours') AT TIME ZONE 'America/Los_Angeles',
+   (date_trunc('week', CURRENT_DATE)::timestamp + INTERVAL '2 days 17 hours') AT TIME ZONE 'America/Los_Angeles',
    'c0000000-0000-4000-a000-000000000002', 1),
   -- Thursday server 10-4
   ('f0000000-0000-4000-a000-000000000024', 'e0000000-0000-4000-a000-000000000003', 'b0000000-0000-4000-a000-000000000003',
-   (date_trunc('week', CURRENT_DATE) + INTERVAL '3 days 10 hours') AT TIME ZONE 'America/Los_Angeles',
-   (date_trunc('week', CURRENT_DATE) + INTERVAL '3 days 16 hours') AT TIME ZONE 'America/Los_Angeles',
+   (date_trunc('week', CURRENT_DATE)::timestamp + INTERVAL '3 days 10 hours') AT TIME ZONE 'America/Los_Angeles',
+   (date_trunc('week', CURRENT_DATE)::timestamp + INTERVAL '3 days 16 hours') AT TIME ZONE 'America/Los_Angeles',
    'c0000000-0000-4000-a000-000000000003', 1),
   -- Saturday evening server 5-11 (premium)
   ('f0000000-0000-4000-a000-000000000025', 'e0000000-0000-4000-a000-000000000003', 'b0000000-0000-4000-a000-000000000003',
-   (date_trunc('week', CURRENT_DATE) + INTERVAL '5 days 17 hours') AT TIME ZONE 'America/Los_Angeles',
-   (date_trunc('week', CURRENT_DATE) + INTERVAL '5 days 23 hours') AT TIME ZONE 'America/Los_Angeles',
+   (date_trunc('week', CURRENT_DATE)::timestamp + INTERVAL '5 days 17 hours') AT TIME ZONE 'America/Los_Angeles',
+   (date_trunc('week', CURRENT_DATE)::timestamp + INTERVAL '5 days 23 hours') AT TIME ZONE 'America/Los_Angeles',
    'c0000000-0000-4000-a000-000000000003', 1);
 
 -- Shifts for Midtown current week (Eastern Time)
 INSERT INTO shifts (id, schedule_id, location_id, start_time, end_time, required_skill_id, headcount_needed) VALUES
   -- Monday host 9-5
   ('f0000000-0000-4000-a000-000000000030', 'e0000000-0000-4000-a000-000000000004', 'b0000000-0000-4000-a000-000000000002',
-   (date_trunc('week', CURRENT_DATE) + INTERVAL '9 hours') AT TIME ZONE 'America/New_York',
-   (date_trunc('week', CURRENT_DATE) + INTERVAL '17 hours') AT TIME ZONE 'America/New_York',
+   (date_trunc('week', CURRENT_DATE)::timestamp + INTERVAL '9 hours') AT TIME ZONE 'America/New_York',
+   (date_trunc('week', CURRENT_DATE)::timestamp + INTERVAL '17 hours') AT TIME ZONE 'America/New_York',
    'c0000000-0000-4000-a000-000000000004', 1),
   -- Monday bartender 11-7
   ('f0000000-0000-4000-a000-000000000031', 'e0000000-0000-4000-a000-000000000004', 'b0000000-0000-4000-a000-000000000002',
-   (date_trunc('week', CURRENT_DATE) + INTERVAL '11 hours') AT TIME ZONE 'America/New_York',
-   (date_trunc('week', CURRENT_DATE) + INTERVAL '19 hours') AT TIME ZONE 'America/New_York',
+   (date_trunc('week', CURRENT_DATE)::timestamp + INTERVAL '11 hours') AT TIME ZONE 'America/New_York',
+   (date_trunc('week', CURRENT_DATE)::timestamp + INTERVAL '19 hours') AT TIME ZONE 'America/New_York',
    'c0000000-0000-4000-a000-000000000001', 1),
   -- Tuesday server 10-6
   ('f0000000-0000-4000-a000-000000000032', 'e0000000-0000-4000-a000-000000000004', 'b0000000-0000-4000-a000-000000000002',
-   (date_trunc('week', CURRENT_DATE) + INTERVAL '1 day 10 hours') AT TIME ZONE 'America/New_York',
-   (date_trunc('week', CURRENT_DATE) + INTERVAL '1 day 18 hours') AT TIME ZONE 'America/New_York',
+   (date_trunc('week', CURRENT_DATE)::timestamp + INTERVAL '1 day 10 hours') AT TIME ZONE 'America/New_York',
+   (date_trunc('week', CURRENT_DATE)::timestamp + INTERVAL '1 day 18 hours') AT TIME ZONE 'America/New_York',
    'c0000000-0000-4000-a000-000000000003', 1),
   -- Wednesday line cook 9-5
   ('f0000000-0000-4000-a000-000000000033', 'e0000000-0000-4000-a000-000000000004', 'b0000000-0000-4000-a000-000000000002',
-   (date_trunc('week', CURRENT_DATE) + INTERVAL '2 days 9 hours') AT TIME ZONE 'America/New_York',
-   (date_trunc('week', CURRENT_DATE) + INTERVAL '2 days 17 hours') AT TIME ZONE 'America/New_York',
+   (date_trunc('week', CURRENT_DATE)::timestamp + INTERVAL '2 days 9 hours') AT TIME ZONE 'America/New_York',
+   (date_trunc('week', CURRENT_DATE)::timestamp + INTERVAL '2 days 17 hours') AT TIME ZONE 'America/New_York',
    'c0000000-0000-4000-a000-000000000002', 1),
   -- Wednesday bartender 11-7
   ('f0000000-0000-4000-a000-000000000034', 'e0000000-0000-4000-a000-000000000004', 'b0000000-0000-4000-a000-000000000002',
-   (date_trunc('week', CURRENT_DATE) + INTERVAL '2 days 11 hours') AT TIME ZONE 'America/New_York',
-   (date_trunc('week', CURRENT_DATE) + INTERVAL '2 days 19 hours') AT TIME ZONE 'America/New_York',
+   (date_trunc('week', CURRENT_DATE)::timestamp + INTERVAL '2 days 11 hours') AT TIME ZONE 'America/New_York',
+   (date_trunc('week', CURRENT_DATE)::timestamp + INTERVAL '2 days 19 hours') AT TIME ZONE 'America/New_York',
    'c0000000-0000-4000-a000-000000000001', 1),
   -- Thursday server 10-6
   ('f0000000-0000-4000-a000-000000000035', 'e0000000-0000-4000-a000-000000000004', 'b0000000-0000-4000-a000-000000000002',
-   (date_trunc('week', CURRENT_DATE) + INTERVAL '3 days 10 hours') AT TIME ZONE 'America/New_York',
-   (date_trunc('week', CURRENT_DATE) + INTERVAL '3 days 18 hours') AT TIME ZONE 'America/New_York',
+   (date_trunc('week', CURRENT_DATE)::timestamp + INTERVAL '3 days 10 hours') AT TIME ZONE 'America/New_York',
+   (date_trunc('week', CURRENT_DATE)::timestamp + INTERVAL '3 days 18 hours') AT TIME ZONE 'America/New_York',
    'c0000000-0000-4000-a000-000000000003', 1),
   -- Thursday host 10-4
   ('f0000000-0000-4000-a000-000000000036', 'e0000000-0000-4000-a000-000000000004', 'b0000000-0000-4000-a000-000000000002',
-   (date_trunc('week', CURRENT_DATE) + INTERVAL '3 days 10 hours') AT TIME ZONE 'America/New_York',
-   (date_trunc('week', CURRENT_DATE) + INTERVAL '3 days 16 hours') AT TIME ZONE 'America/New_York',
+   (date_trunc('week', CURRENT_DATE)::timestamp + INTERVAL '3 days 10 hours') AT TIME ZONE 'America/New_York',
+   (date_trunc('week', CURRENT_DATE)::timestamp + INTERVAL '3 days 16 hours') AT TIME ZONE 'America/New_York',
    'c0000000-0000-4000-a000-000000000004', 1),
   -- Friday evening bartender 5-11 (premium)
   ('f0000000-0000-4000-a000-000000000037', 'e0000000-0000-4000-a000-000000000004', 'b0000000-0000-4000-a000-000000000002',
-   (date_trunc('week', CURRENT_DATE) + INTERVAL '4 days 17 hours') AT TIME ZONE 'America/New_York',
-   (date_trunc('week', CURRENT_DATE) + INTERVAL '4 days 23 hours') AT TIME ZONE 'America/New_York',
+   (date_trunc('week', CURRENT_DATE)::timestamp + INTERVAL '4 days 17 hours') AT TIME ZONE 'America/New_York',
+   (date_trunc('week', CURRENT_DATE)::timestamp + INTERVAL '4 days 23 hours') AT TIME ZONE 'America/New_York',
    'c0000000-0000-4000-a000-000000000001', 1),
   -- Saturday evening server 5-11 (premium)
   ('f0000000-0000-4000-a000-000000000038', 'e0000000-0000-4000-a000-000000000004', 'b0000000-0000-4000-a000-000000000002',
-   (date_trunc('week', CURRENT_DATE) + INTERVAL '5 days 17 hours') AT TIME ZONE 'America/New_York',
-   (date_trunc('week', CURRENT_DATE) + INTERVAL '5 days 23 hours') AT TIME ZONE 'America/New_York',
+   (date_trunc('week', CURRENT_DATE)::timestamp + INTERVAL '5 days 17 hours') AT TIME ZONE 'America/New_York',
+   (date_trunc('week', CURRENT_DATE)::timestamp + INTERVAL '5 days 23 hours') AT TIME ZONE 'America/New_York',
    'c0000000-0000-4000-a000-000000000003', 1);
 
 -- Shifts for Beachfront current week (Pacific Time)
 INSERT INTO shifts (id, schedule_id, location_id, start_time, end_time, required_skill_id, headcount_needed) VALUES
   -- Monday server 10-6
   ('f0000000-0000-4000-a000-000000000040', 'e0000000-0000-4000-a000-000000000005', 'b0000000-0000-4000-a000-000000000004',
-   (date_trunc('week', CURRENT_DATE) + INTERVAL '10 hours') AT TIME ZONE 'America/Los_Angeles',
-   (date_trunc('week', CURRENT_DATE) + INTERVAL '18 hours') AT TIME ZONE 'America/Los_Angeles',
+   (date_trunc('week', CURRENT_DATE)::timestamp + INTERVAL '10 hours') AT TIME ZONE 'America/Los_Angeles',
+   (date_trunc('week', CURRENT_DATE)::timestamp + INTERVAL '18 hours') AT TIME ZONE 'America/Los_Angeles',
    'c0000000-0000-4000-a000-000000000003', 1),
   -- Monday line cook 9-5
   ('f0000000-0000-4000-a000-000000000041', 'e0000000-0000-4000-a000-000000000005', 'b0000000-0000-4000-a000-000000000004',
-   (date_trunc('week', CURRENT_DATE) + INTERVAL '9 hours') AT TIME ZONE 'America/Los_Angeles',
-   (date_trunc('week', CURRENT_DATE) + INTERVAL '17 hours') AT TIME ZONE 'America/Los_Angeles',
+   (date_trunc('week', CURRENT_DATE)::timestamp + INTERVAL '9 hours') AT TIME ZONE 'America/Los_Angeles',
+   (date_trunc('week', CURRENT_DATE)::timestamp + INTERVAL '17 hours') AT TIME ZONE 'America/Los_Angeles',
    'c0000000-0000-4000-a000-000000000002', 1),
   -- Tuesday bartender 11-7
   ('f0000000-0000-4000-a000-000000000042', 'e0000000-0000-4000-a000-000000000005', 'b0000000-0000-4000-a000-000000000004',
-   (date_trunc('week', CURRENT_DATE) + INTERVAL '1 day 11 hours') AT TIME ZONE 'America/Los_Angeles',
-   (date_trunc('week', CURRENT_DATE) + INTERVAL '1 day 19 hours') AT TIME ZONE 'America/Los_Angeles',
+   (date_trunc('week', CURRENT_DATE)::timestamp + INTERVAL '1 day 11 hours') AT TIME ZONE 'America/Los_Angeles',
+   (date_trunc('week', CURRENT_DATE)::timestamp + INTERVAL '1 day 19 hours') AT TIME ZONE 'America/Los_Angeles',
    'c0000000-0000-4000-a000-000000000001', 1),
   -- Tuesday server 10-6
   ('f0000000-0000-4000-a000-000000000043', 'e0000000-0000-4000-a000-000000000005', 'b0000000-0000-4000-a000-000000000004',
-   (date_trunc('week', CURRENT_DATE) + INTERVAL '1 day 10 hours') AT TIME ZONE 'America/Los_Angeles',
-   (date_trunc('week', CURRENT_DATE) + INTERVAL '1 day 18 hours') AT TIME ZONE 'America/Los_Angeles',
+   (date_trunc('week', CURRENT_DATE)::timestamp + INTERVAL '1 day 10 hours') AT TIME ZONE 'America/Los_Angeles',
+   (date_trunc('week', CURRENT_DATE)::timestamp + INTERVAL '1 day 18 hours') AT TIME ZONE 'America/Los_Angeles',
    'c0000000-0000-4000-a000-000000000003', 1),
   -- Wednesday server 10-4
   ('f0000000-0000-4000-a000-000000000044', 'e0000000-0000-4000-a000-000000000005', 'b0000000-0000-4000-a000-000000000004',
-   (date_trunc('week', CURRENT_DATE) + INTERVAL '2 days 10 hours') AT TIME ZONE 'America/Los_Angeles',
-   (date_trunc('week', CURRENT_DATE) + INTERVAL '2 days 16 hours') AT TIME ZONE 'America/Los_Angeles',
+   (date_trunc('week', CURRENT_DATE)::timestamp + INTERVAL '2 days 10 hours') AT TIME ZONE 'America/Los_Angeles',
+   (date_trunc('week', CURRENT_DATE)::timestamp + INTERVAL '2 days 16 hours') AT TIME ZONE 'America/Los_Angeles',
    'c0000000-0000-4000-a000-000000000003', 1),
   -- Thursday line cook 9-5
   ('f0000000-0000-4000-a000-000000000045', 'e0000000-0000-4000-a000-000000000005', 'b0000000-0000-4000-a000-000000000004',
-   (date_trunc('week', CURRENT_DATE) + INTERVAL '3 days 9 hours') AT TIME ZONE 'America/Los_Angeles',
-   (date_trunc('week', CURRENT_DATE) + INTERVAL '3 days 17 hours') AT TIME ZONE 'America/Los_Angeles',
+   (date_trunc('week', CURRENT_DATE)::timestamp + INTERVAL '3 days 9 hours') AT TIME ZONE 'America/Los_Angeles',
+   (date_trunc('week', CURRENT_DATE)::timestamp + INTERVAL '3 days 17 hours') AT TIME ZONE 'America/Los_Angeles',
    'c0000000-0000-4000-a000-000000000002', 1),
   -- Friday evening bartender 5-11 (premium)
   ('f0000000-0000-4000-a000-000000000046', 'e0000000-0000-4000-a000-000000000005', 'b0000000-0000-4000-a000-000000000004',
-   (date_trunc('week', CURRENT_DATE) + INTERVAL '4 days 17 hours') AT TIME ZONE 'America/Los_Angeles',
-   (date_trunc('week', CURRENT_DATE) + INTERVAL '4 days 23 hours') AT TIME ZONE 'America/Los_Angeles',
+   (date_trunc('week', CURRENT_DATE)::timestamp + INTERVAL '4 days 17 hours') AT TIME ZONE 'America/Los_Angeles',
+   (date_trunc('week', CURRENT_DATE)::timestamp + INTERVAL '4 days 23 hours') AT TIME ZONE 'America/Los_Angeles',
    'c0000000-0000-4000-a000-000000000001', 1),
   -- Saturday evening bartender 5-11 (premium)
   ('f0000000-0000-4000-a000-000000000047', 'e0000000-0000-4000-a000-000000000005', 'b0000000-0000-4000-a000-000000000004',
-   (date_trunc('week', CURRENT_DATE) + INTERVAL '5 days 17 hours') AT TIME ZONE 'America/Los_Angeles',
-   (date_trunc('week', CURRENT_DATE) + INTERVAL '5 days 23 hours') AT TIME ZONE 'America/Los_Angeles',
+   (date_trunc('week', CURRENT_DATE)::timestamp + INTERVAL '5 days 17 hours') AT TIME ZONE 'America/Los_Angeles',
+   (date_trunc('week', CURRENT_DATE)::timestamp + INTERVAL '5 days 23 hours') AT TIME ZONE 'America/Los_Angeles',
    'c0000000-0000-4000-a000-000000000001', 1);
 
 -- ============================================================
@@ -564,43 +564,43 @@ INSERT INTO shifts (id, schedule_id, location_id, start_time, end_time, required
 INSERT INTO shifts (id, schedule_id, location_id, start_time, end_time, required_skill_id, headcount_needed) VALUES
   -- Mon line cook 7am-5pm (10h)
   ('f0000000-0000-4000-a000-000000000050', 'e0000000-0000-4000-a000-000000000002', 'b0000000-0000-4000-a000-000000000001',
-   (date_trunc('week', CURRENT_DATE) + INTERVAL '7 days 7 hours') AT TIME ZONE 'America/New_York',
-   (date_trunc('week', CURRENT_DATE) + INTERVAL '7 days 17 hours') AT TIME ZONE 'America/New_York',
+   (date_trunc('week', CURRENT_DATE)::timestamp + INTERVAL '7 days 7 hours') AT TIME ZONE 'America/New_York',
+   (date_trunc('week', CURRENT_DATE)::timestamp + INTERVAL '7 days 17 hours') AT TIME ZONE 'America/New_York',
    'c0000000-0000-4000-a000-000000000002', 1),
   -- Mon server 9am-5pm (8h)
   ('f0000000-0000-4000-a000-000000000051', 'e0000000-0000-4000-a000-000000000002', 'b0000000-0000-4000-a000-000000000001',
-   (date_trunc('week', CURRENT_DATE) + INTERVAL '7 days 9 hours') AT TIME ZONE 'America/New_York',
-   (date_trunc('week', CURRENT_DATE) + INTERVAL '7 days 17 hours') AT TIME ZONE 'America/New_York',
+   (date_trunc('week', CURRENT_DATE)::timestamp + INTERVAL '7 days 9 hours') AT TIME ZONE 'America/New_York',
+   (date_trunc('week', CURRENT_DATE)::timestamp + INTERVAL '7 days 17 hours') AT TIME ZONE 'America/New_York',
    'c0000000-0000-4000-a000-000000000003', 1),
   -- Tue line cook 9am-5pm (8h)
   ('f0000000-0000-4000-a000-000000000052', 'e0000000-0000-4000-a000-000000000002', 'b0000000-0000-4000-a000-000000000001',
-   (date_trunc('week', CURRENT_DATE) + INTERVAL '8 days 9 hours') AT TIME ZONE 'America/New_York',
-   (date_trunc('week', CURRENT_DATE) + INTERVAL '8 days 17 hours') AT TIME ZONE 'America/New_York',
+   (date_trunc('week', CURRENT_DATE)::timestamp + INTERVAL '8 days 9 hours') AT TIME ZONE 'America/New_York',
+   (date_trunc('week', CURRENT_DATE)::timestamp + INTERVAL '8 days 17 hours') AT TIME ZONE 'America/New_York',
    'c0000000-0000-4000-a000-000000000002', 1),
   -- Tue bartender 11am-7pm (8h)
   ('f0000000-0000-4000-a000-000000000053', 'e0000000-0000-4000-a000-000000000002', 'b0000000-0000-4000-a000-000000000001',
-   (date_trunc('week', CURRENT_DATE) + INTERVAL '8 days 11 hours') AT TIME ZONE 'America/New_York',
-   (date_trunc('week', CURRENT_DATE) + INTERVAL '8 days 19 hours') AT TIME ZONE 'America/New_York',
+   (date_trunc('week', CURRENT_DATE)::timestamp + INTERVAL '8 days 11 hours') AT TIME ZONE 'America/New_York',
+   (date_trunc('week', CURRENT_DATE)::timestamp + INTERVAL '8 days 19 hours') AT TIME ZONE 'America/New_York',
    'c0000000-0000-4000-a000-000000000001', 1),
   -- Wed line cook 9am-5pm (8h)
   ('f0000000-0000-4000-a000-000000000054', 'e0000000-0000-4000-a000-000000000002', 'b0000000-0000-4000-a000-000000000001',
-   (date_trunc('week', CURRENT_DATE) + INTERVAL '9 days 9 hours') AT TIME ZONE 'America/New_York',
-   (date_trunc('week', CURRENT_DATE) + INTERVAL '9 days 17 hours') AT TIME ZONE 'America/New_York',
+   (date_trunc('week', CURRENT_DATE)::timestamp + INTERVAL '9 days 9 hours') AT TIME ZONE 'America/New_York',
+   (date_trunc('week', CURRENT_DATE)::timestamp + INTERVAL '9 days 17 hours') AT TIME ZONE 'America/New_York',
    'c0000000-0000-4000-a000-000000000002', 1),
   -- Wed server 9am-5pm (8h)
   ('f0000000-0000-4000-a000-000000000055', 'e0000000-0000-4000-a000-000000000002', 'b0000000-0000-4000-a000-000000000001',
-   (date_trunc('week', CURRENT_DATE) + INTERVAL '9 days 9 hours') AT TIME ZONE 'America/New_York',
-   (date_trunc('week', CURRENT_DATE) + INTERVAL '9 days 17 hours') AT TIME ZONE 'America/New_York',
+   (date_trunc('week', CURRENT_DATE)::timestamp + INTERVAL '9 days 9 hours') AT TIME ZONE 'America/New_York',
+   (date_trunc('week', CURRENT_DATE)::timestamp + INTERVAL '9 days 17 hours') AT TIME ZONE 'America/New_York',
    'c0000000-0000-4000-a000-000000000003', 1),
   -- Thu line cook 9am-5pm (8h)
   ('f0000000-0000-4000-a000-000000000056', 'e0000000-0000-4000-a000-000000000002', 'b0000000-0000-4000-a000-000000000001',
-   (date_trunc('week', CURRENT_DATE) + INTERVAL '10 days 9 hours') AT TIME ZONE 'America/New_York',
-   (date_trunc('week', CURRENT_DATE) + INTERVAL '10 days 17 hours') AT TIME ZONE 'America/New_York',
+   (date_trunc('week', CURRENT_DATE)::timestamp + INTERVAL '10 days 9 hours') AT TIME ZONE 'America/New_York',
+   (date_trunc('week', CURRENT_DATE)::timestamp + INTERVAL '10 days 17 hours') AT TIME ZONE 'America/New_York',
    'c0000000-0000-4000-a000-000000000002', 1),
   -- Fri line cook 9am-5pm (8h)
   ('f0000000-0000-4000-a000-000000000057', 'e0000000-0000-4000-a000-000000000002', 'b0000000-0000-4000-a000-000000000001',
-   (date_trunc('week', CURRENT_DATE) + INTERVAL '11 days 9 hours') AT TIME ZONE 'America/New_York',
-   (date_trunc('week', CURRENT_DATE) + INTERVAL '11 days 17 hours') AT TIME ZONE 'America/New_York',
+   (date_trunc('week', CURRENT_DATE)::timestamp + INTERVAL '11 days 9 hours') AT TIME ZONE 'America/New_York',
+   (date_trunc('week', CURRENT_DATE)::timestamp + INTERVAL '11 days 17 hours') AT TIME ZONE 'America/New_York',
    'c0000000-0000-4000-a000-000000000002', 1);
 
 -- Next-week draft assignments (James 42h, Sarah 16h, Mike 8h)
@@ -715,7 +715,7 @@ INSERT INTO swap_requests (id, type, requester_assignment_id, status, requester_
   ('bb000000-0000-4000-a000-000000000002', 'drop',
    'aa000000-0000-4000-a000-000000000003', -- Maria's Monday server
    'pending_manager', 'Doctor appointment',
-   date_trunc('week', CURRENT_DATE) + INTERVAL '23 hours'); -- expires 24h before Mon shift
+   date_trunc('week', CURRENT_DATE)::timestamp + INTERVAL '23 hours'); -- expires 24h before Mon shift
 
 -- Approved drop at Downtown: Mike dropped his Tue bartender — Jordan approved
 INSERT INTO swap_requests (id, type, requester_assignment_id, status, requester_reason, manager_id, manager_reason, created_at, updated_at) VALUES
@@ -740,7 +740,7 @@ INSERT INTO swap_requests (id, type, requester_assignment_id, status, requester_
   ('bb000000-0000-4000-a000-000000000005', 'drop',
    'aa000000-0000-4000-a000-000000000010', -- Sarah's Sat server (premium) at Downtown
    'pending_manager', 'Want the weekend off — already have Friday evening shift',
-   date_trunc('week', CURRENT_DATE) + INTERVAL '5 days 10 hours');
+   date_trunc('week', CURRENT_DATE)::timestamp + INTERVAL '5 days 10 hours');
 
 -- ============================================================
 -- AUDIT LOG ENTRIES — comprehensive change history
@@ -992,3 +992,253 @@ INSERT INTO invitations (id, organization_id, email, role, location_ids, skill_i
    NOW() - INTERVAL '19 days',
    NOW() - INTERVAL '21 days',
    NOW() - INTERVAL '23 days');
+
+-- ============================================================
+-- HISTORICAL WEEK DATA (weeks -1, -2, -3) for fairness analytics
+-- Premium rotation: Sarah(-3) → Maria(-2) → Mike+Maria(-1) → Sarah(current)
+-- Beachfront: Chris gets all premiums every week (fairness alert)
+-- ============================================================
+
+-- Midtown week -1
+INSERT INTO schedules (id, location_id, week_start, status, published_at, published_by) VALUES
+  ('e0000000-0000-4000-a000-000000000007', 'b0000000-0000-4000-a000-000000000002',
+   (date_trunc('week', CURRENT_DATE)::timestamp - INTERVAL '7 days')::date, 'published',
+   NOW() - INTERVAL '10 days', 'd0000000-0000-4000-a000-000000000003');
+
+-- Westside week -1
+INSERT INTO schedules (id, location_id, week_start, status, published_at, published_by) VALUES
+  ('e0000000-0000-4000-a000-000000000008', 'b0000000-0000-4000-a000-000000000003',
+   (date_trunc('week', CURRENT_DATE)::timestamp - INTERVAL '7 days')::date, 'published',
+   NOW() - INTERVAL '10 days', 'd0000000-0000-4000-a000-000000000004');
+
+-- Beachfront week -1
+INSERT INTO schedules (id, location_id, week_start, status, published_at, published_by) VALUES
+  ('e0000000-0000-4000-a000-000000000009', 'b0000000-0000-4000-a000-000000000004',
+   (date_trunc('week', CURRENT_DATE)::timestamp - INTERVAL '7 days')::date, 'published',
+   NOW() - INTERVAL '10 days', 'd0000000-0000-4000-a000-000000000005');
+
+-- Downtown week -2
+INSERT INTO schedules (id, location_id, week_start, status, published_at, published_by) VALUES
+  ('e0000000-0000-4000-a000-000000000010', 'b0000000-0000-4000-a000-000000000001',
+   (date_trunc('week', CURRENT_DATE)::timestamp - INTERVAL '14 days')::date, 'published',
+   NOW() - INTERVAL '16 days', 'd0000000-0000-4000-a000-000000000002');
+
+-- Downtown week -3
+INSERT INTO schedules (id, location_id, week_start, status, published_at, published_by) VALUES
+  ('e0000000-0000-4000-a000-000000000011', 'b0000000-0000-4000-a000-000000000001',
+   (date_trunc('week', CURRENT_DATE)::timestamp - INTERVAL '21 days')::date, 'published',
+   NOW() - INTERVAL '23 days', 'd0000000-0000-4000-a000-000000000002');
+
+-- Midtown week -1 shifts
+INSERT INTO shifts (id, schedule_id, location_id, start_time, end_time, required_skill_id, headcount_needed) VALUES
+  ('f0000000-0000-4000-a000-000000000070', 'e0000000-0000-4000-a000-000000000007', 'b0000000-0000-4000-a000-000000000002',
+   (date_trunc('week', CURRENT_DATE)::timestamp - INTERVAL '7 days' + INTERVAL '10 hours') AT TIME ZONE 'America/New_York',
+   (date_trunc('week', CURRENT_DATE)::timestamp - INTERVAL '7 days' + INTERVAL '18 hours') AT TIME ZONE 'America/New_York',
+   'c0000000-0000-4000-a000-000000000003', 1), -- Mon server
+  ('f0000000-0000-4000-a000-000000000071', 'e0000000-0000-4000-a000-000000000007', 'b0000000-0000-4000-a000-000000000002',
+   (date_trunc('week', CURRENT_DATE)::timestamp - INTERVAL '5 days' + INTERVAL '11 hours') AT TIME ZONE 'America/New_York',
+   (date_trunc('week', CURRENT_DATE)::timestamp - INTERVAL '5 days' + INTERVAL '19 hours') AT TIME ZONE 'America/New_York',
+   'c0000000-0000-4000-a000-000000000001', 1), -- Wed bartender
+  ('f0000000-0000-4000-a000-000000000072', 'e0000000-0000-4000-a000-000000000007', 'b0000000-0000-4000-a000-000000000002',
+   (date_trunc('week', CURRENT_DATE)::timestamp - INTERVAL '3 days' + INTERVAL '17 hours') AT TIME ZONE 'America/New_York',
+   (date_trunc('week', CURRENT_DATE)::timestamp - INTERVAL '3 days' + INTERVAL '23 hours') AT TIME ZONE 'America/New_York',
+   'c0000000-0000-4000-a000-000000000003', 1), -- Fri server premium
+  ('f0000000-0000-4000-a000-000000000087', 'e0000000-0000-4000-a000-000000000007', 'b0000000-0000-4000-a000-000000000002',
+   (date_trunc('week', CURRENT_DATE)::timestamp - INTERVAL '4 days' + INTERVAL '10 hours') AT TIME ZONE 'America/New_York',
+   (date_trunc('week', CURRENT_DATE)::timestamp - INTERVAL '4 days' + INTERVAL '18 hours') AT TIME ZONE 'America/New_York',
+   'c0000000-0000-4000-a000-000000000003', 1); -- Thu server (Sarah cross-loc)
+
+-- Westside week -1 shifts
+INSERT INTO shifts (id, schedule_id, location_id, start_time, end_time, required_skill_id, headcount_needed) VALUES
+  ('f0000000-0000-4000-a000-000000000073', 'e0000000-0000-4000-a000-000000000008', 'b0000000-0000-4000-a000-000000000003',
+   (date_trunc('week', CURRENT_DATE)::timestamp - INTERVAL '7 days' + INTERVAL '9 hours') AT TIME ZONE 'America/Los_Angeles',
+   (date_trunc('week', CURRENT_DATE)::timestamp - INTERVAL '7 days' + INTERVAL '17 hours') AT TIME ZONE 'America/Los_Angeles',
+   'c0000000-0000-4000-a000-000000000003', 1), -- Mon server
+  ('f0000000-0000-4000-a000-000000000074', 'e0000000-0000-4000-a000-000000000008', 'b0000000-0000-4000-a000-000000000003',
+   (date_trunc('week', CURRENT_DATE)::timestamp - INTERVAL '5 days' + INTERVAL '9 hours') AT TIME ZONE 'America/Los_Angeles',
+   (date_trunc('week', CURRENT_DATE)::timestamp - INTERVAL '5 days' + INTERVAL '17 hours') AT TIME ZONE 'America/Los_Angeles',
+   'c0000000-0000-4000-a000-000000000002', 1), -- Wed line cook
+  ('f0000000-0000-4000-a000-000000000075', 'e0000000-0000-4000-a000-000000000008', 'b0000000-0000-4000-a000-000000000003',
+   (date_trunc('week', CURRENT_DATE)::timestamp - INTERVAL '3 days' + INTERVAL '17 hours') AT TIME ZONE 'America/Los_Angeles',
+   (date_trunc('week', CURRENT_DATE)::timestamp - INTERVAL '3 days' + INTERVAL '23 hours') AT TIME ZONE 'America/Los_Angeles',
+   'c0000000-0000-4000-a000-000000000001', 1), -- Fri bartender premium
+  ('f0000000-0000-4000-a000-000000000086', 'e0000000-0000-4000-a000-000000000008', 'b0000000-0000-4000-a000-000000000003',
+   (date_trunc('week', CURRENT_DATE)::timestamp - INTERVAL '6 days' + INTERVAL '9 hours') AT TIME ZONE 'America/Los_Angeles',
+   (date_trunc('week', CURRENT_DATE)::timestamp - INTERVAL '6 days' + INTERVAL '17 hours') AT TIME ZONE 'America/Los_Angeles',
+   'c0000000-0000-4000-a000-000000000003', 1); -- Tue server (Mike cross-tz)
+
+-- Beachfront week -1 shifts
+INSERT INTO shifts (id, schedule_id, location_id, start_time, end_time, required_skill_id, headcount_needed) VALUES
+  ('f0000000-0000-4000-a000-000000000076', 'e0000000-0000-4000-a000-000000000009', 'b0000000-0000-4000-a000-000000000004',
+   (date_trunc('week', CURRENT_DATE)::timestamp - INTERVAL '6 days' + INTERVAL '10 hours') AT TIME ZONE 'America/Los_Angeles',
+   (date_trunc('week', CURRENT_DATE)::timestamp - INTERVAL '6 days' + INTERVAL '18 hours') AT TIME ZONE 'America/Los_Angeles',
+   'c0000000-0000-4000-a000-000000000003', 1), -- Tue server
+  ('f0000000-0000-4000-a000-000000000077', 'e0000000-0000-4000-a000-000000000009', 'b0000000-0000-4000-a000-000000000004',
+   (date_trunc('week', CURRENT_DATE)::timestamp - INTERVAL '4 days' + INTERVAL '9 hours') AT TIME ZONE 'America/Los_Angeles',
+   (date_trunc('week', CURRENT_DATE)::timestamp - INTERVAL '4 days' + INTERVAL '17 hours') AT TIME ZONE 'America/Los_Angeles',
+   'c0000000-0000-4000-a000-000000000002', 1), -- Thu line cook
+  ('f0000000-0000-4000-a000-000000000078', 'e0000000-0000-4000-a000-000000000009', 'b0000000-0000-4000-a000-000000000004',
+   (date_trunc('week', CURRENT_DATE)::timestamp - INTERVAL '3 days' + INTERVAL '17 hours') AT TIME ZONE 'America/Los_Angeles',
+   (date_trunc('week', CURRENT_DATE)::timestamp - INTERVAL '3 days' + INTERVAL '23 hours') AT TIME ZONE 'America/Los_Angeles',
+   'c0000000-0000-4000-a000-000000000001', 1); -- Fri bartender premium
+
+-- Downtown week -2 shifts (Maria gets premiums)
+INSERT INTO shifts (id, schedule_id, location_id, start_time, end_time, required_skill_id, headcount_needed) VALUES
+  ('f0000000-0000-4000-a000-000000000079', 'e0000000-0000-4000-a000-000000000010', 'b0000000-0000-4000-a000-000000000001',
+   (date_trunc('week', CURRENT_DATE)::timestamp - INTERVAL '14 days' + INTERVAL '9 hours') AT TIME ZONE 'America/New_York',
+   (date_trunc('week', CURRENT_DATE)::timestamp - INTERVAL '14 days' + INTERVAL '17 hours') AT TIME ZONE 'America/New_York',
+   'c0000000-0000-4000-a000-000000000003', 1), -- Mon server
+  ('f0000000-0000-4000-a000-000000000080', 'e0000000-0000-4000-a000-000000000010', 'b0000000-0000-4000-a000-000000000001',
+   (date_trunc('week', CURRENT_DATE)::timestamp - INTERVAL '13 days' + INTERVAL '10 hours') AT TIME ZONE 'America/New_York',
+   (date_trunc('week', CURRENT_DATE)::timestamp - INTERVAL '13 days' + INTERVAL '18 hours') AT TIME ZONE 'America/New_York',
+   'c0000000-0000-4000-a000-000000000001', 1), -- Tue bartender
+  ('f0000000-0000-4000-a000-000000000081', 'e0000000-0000-4000-a000-000000000010', 'b0000000-0000-4000-a000-000000000001',
+   (date_trunc('week', CURRENT_DATE)::timestamp - INTERVAL '12 days' + INTERVAL '9 hours') AT TIME ZONE 'America/New_York',
+   (date_trunc('week', CURRENT_DATE)::timestamp - INTERVAL '12 days' + INTERVAL '17 hours') AT TIME ZONE 'America/New_York',
+   'c0000000-0000-4000-a000-000000000002', 1), -- Wed line cook
+  ('f0000000-0000-4000-a000-000000000082', 'e0000000-0000-4000-a000-000000000010', 'b0000000-0000-4000-a000-000000000001',
+   (date_trunc('week', CURRENT_DATE)::timestamp - INTERVAL '10 days' + INTERVAL '17 hours') AT TIME ZONE 'America/New_York',
+   (date_trunc('week', CURRENT_DATE)::timestamp - INTERVAL '10 days' + INTERVAL '23 hours') AT TIME ZONE 'America/New_York',
+   'c0000000-0000-4000-a000-000000000003', 1); -- Fri server premium
+
+-- Downtown week -3 shifts (Sarah gets premiums)
+INSERT INTO shifts (id, schedule_id, location_id, start_time, end_time, required_skill_id, headcount_needed) VALUES
+  ('f0000000-0000-4000-a000-000000000083', 'e0000000-0000-4000-a000-000000000011', 'b0000000-0000-4000-a000-000000000001',
+   (date_trunc('week', CURRENT_DATE)::timestamp - INTERVAL '21 days' + INTERVAL '9 hours') AT TIME ZONE 'America/New_York',
+   (date_trunc('week', CURRENT_DATE)::timestamp - INTERVAL '21 days' + INTERVAL '17 hours') AT TIME ZONE 'America/New_York',
+   'c0000000-0000-4000-a000-000000000003', 1), -- Mon server
+  ('f0000000-0000-4000-a000-000000000084', 'e0000000-0000-4000-a000-000000000011', 'b0000000-0000-4000-a000-000000000001',
+   (date_trunc('week', CURRENT_DATE)::timestamp - INTERVAL '20 days' + INTERVAL '9 hours') AT TIME ZONE 'America/New_York',
+   (date_trunc('week', CURRENT_DATE)::timestamp - INTERVAL '20 days' + INTERVAL '17 hours') AT TIME ZONE 'America/New_York',
+   'c0000000-0000-4000-a000-000000000002', 1), -- Tue line cook
+  ('f0000000-0000-4000-a000-000000000085', 'e0000000-0000-4000-a000-000000000011', 'b0000000-0000-4000-a000-000000000001',
+   (date_trunc('week', CURRENT_DATE)::timestamp - INTERVAL '17 days' + INTERVAL '17 hours') AT TIME ZONE 'America/New_York',
+   (date_trunc('week', CURRENT_DATE)::timestamp - INTERVAL '17 days' + INTERVAL '23 hours') AT TIME ZONE 'America/New_York',
+   'c0000000-0000-4000-a000-000000000001', 1); -- Fri bartender premium
+
+-- Historical assignments
+INSERT INTO shift_assignments (id, shift_id, user_id, assigned_by) VALUES
+  -- Midtown week -1
+  ('aa000000-0000-4000-a000-000000000070', 'f0000000-0000-4000-a000-000000000070', 'd0000000-0000-4000-a000-000000000015', 'd0000000-0000-4000-a000-000000000003'), -- David Mon server
+  ('aa000000-0000-4000-a000-000000000071', 'f0000000-0000-4000-a000-000000000071', 'd0000000-0000-4000-a000-000000000017', 'd0000000-0000-4000-a000-000000000003'), -- Robert Wed bartender
+  ('aa000000-0000-4000-a000-000000000072', 'f0000000-0000-4000-a000-000000000072', 'd0000000-0000-4000-a000-000000000015', 'd0000000-0000-4000-a000-000000000003'), -- David Fri premium server
+  ('aa000000-0000-4000-a000-000000000087', 'f0000000-0000-4000-a000-000000000087', 'd0000000-0000-4000-a000-000000000010', 'd0000000-0000-4000-a000-000000000003'), -- Sarah Thu server (cross-loc!)
+  -- Westside week -1
+  ('aa000000-0000-4000-a000-000000000073', 'f0000000-0000-4000-a000-000000000073', 'd0000000-0000-4000-a000-000000000018', 'd0000000-0000-4000-a000-000000000004'), -- Anna Mon server
+  ('aa000000-0000-4000-a000-000000000074', 'f0000000-0000-4000-a000-000000000074', 'd0000000-0000-4000-a000-000000000018', 'd0000000-0000-4000-a000-000000000004'), -- Anna Wed line cook
+  ('aa000000-0000-4000-a000-000000000075', 'f0000000-0000-4000-a000-000000000075', 'd0000000-0000-4000-a000-000000000019', 'd0000000-0000-4000-a000-000000000004'), -- Tom Fri bartender premium
+  ('aa000000-0000-4000-a000-000000000086', 'f0000000-0000-4000-a000-000000000086', 'd0000000-0000-4000-a000-000000000011', 'd0000000-0000-4000-a000-000000000004'), -- Mike Tue server (cross-tz!)
+  -- Beachfront week -1
+  ('aa000000-0000-4000-a000-000000000076', 'f0000000-0000-4000-a000-000000000076', 'd0000000-0000-4000-a000-000000000020', 'd0000000-0000-4000-a000-000000000005'), -- Jen Tue server
+  ('aa000000-0000-4000-a000-000000000077', 'f0000000-0000-4000-a000-000000000077', 'd0000000-0000-4000-a000-000000000021', 'd0000000-0000-4000-a000-000000000005'), -- Chris Thu line cook
+  ('aa000000-0000-4000-a000-000000000078', 'f0000000-0000-4000-a000-000000000078', 'd0000000-0000-4000-a000-000000000021', 'd0000000-0000-4000-a000-000000000005'), -- Chris Fri bartender premium
+  -- Downtown week -2 (Maria premiums)
+  ('aa000000-0000-4000-a000-000000000079', 'f0000000-0000-4000-a000-000000000079', 'd0000000-0000-4000-a000-000000000014', 'd0000000-0000-4000-a000-000000000002'), -- Maria Mon server
+  ('aa000000-0000-4000-a000-000000000080', 'f0000000-0000-4000-a000-000000000080', 'd0000000-0000-4000-a000-000000000011', 'd0000000-0000-4000-a000-000000000002'), -- Mike Tue bartender
+  ('aa000000-0000-4000-a000-000000000081', 'f0000000-0000-4000-a000-000000000081', 'd0000000-0000-4000-a000-000000000013', 'd0000000-0000-4000-a000-000000000002'), -- James Wed line cook
+  ('aa000000-0000-4000-a000-000000000082', 'f0000000-0000-4000-a000-000000000082', 'd0000000-0000-4000-a000-000000000014', 'd0000000-0000-4000-a000-000000000002'), -- Maria Fri premium server
+  -- Downtown week -3 (Sarah premiums)
+  ('aa000000-0000-4000-a000-000000000083', 'f0000000-0000-4000-a000-000000000083', 'd0000000-0000-4000-a000-000000000010', 'd0000000-0000-4000-a000-000000000002'), -- Sarah Mon server
+  ('aa000000-0000-4000-a000-000000000084', 'f0000000-0000-4000-a000-000000000084', 'd0000000-0000-4000-a000-000000000013', 'd0000000-0000-4000-a000-000000000002'), -- James Tue line cook
+  ('aa000000-0000-4000-a000-000000000085', 'f0000000-0000-4000-a000-000000000085', 'd0000000-0000-4000-a000-000000000010', 'd0000000-0000-4000-a000-000000000002'); -- Sarah Fri bartender premium
+
+-- ============================================================
+-- MULTI-LOCATION STAFF VISIBILITY (current week)
+-- Mike (Downtown NY + Westside LA) and Sarah (Downtown + Midtown)
+-- need shifts at BOTH locations to showcase the feature
+-- ============================================================
+
+-- New Westside shift for Mike (current week Wed server)
+INSERT INTO shifts (id, schedule_id, location_id, start_time, end_time, required_skill_id, headcount_needed) VALUES
+  ('f0000000-0000-4000-a000-000000000100', 'e0000000-0000-4000-a000-000000000003', 'b0000000-0000-4000-a000-000000000003',
+   (date_trunc('week', CURRENT_DATE)::timestamp + INTERVAL '2 days 10 hours') AT TIME ZONE 'America/Los_Angeles',
+   (date_trunc('week', CURRENT_DATE)::timestamp + INTERVAL '2 days 18 hours') AT TIME ZONE 'America/Los_Angeles',
+   'c0000000-0000-4000-a000-000000000003', 1); -- Wed server 10am-6pm PT
+
+-- New Midtown shift for Sarah (current week Thu server)
+INSERT INTO shifts (id, schedule_id, location_id, start_time, end_time, required_skill_id, headcount_needed) VALUES
+  ('f0000000-0000-4000-a000-000000000101', 'e0000000-0000-4000-a000-000000000004', 'b0000000-0000-4000-a000-000000000002',
+   (date_trunc('week', CURRENT_DATE)::timestamp + INTERVAL '3 days 9 hours') AT TIME ZONE 'America/New_York',
+   (date_trunc('week', CURRENT_DATE)::timestamp + INTERVAL '3 days 17 hours') AT TIME ZONE 'America/New_York',
+   'c0000000-0000-4000-a000-000000000003', 1); -- Thu server 9am-5pm ET
+
+-- Multi-loc assignments
+INSERT INTO shift_assignments (id, shift_id, user_id, assigned_by) VALUES
+  -- Mike → Westside Wed server (cross-timezone!)
+  ('aa000000-0000-4000-a000-000000000100', 'f0000000-0000-4000-a000-000000000100', 'd0000000-0000-4000-a000-000000000011', 'd0000000-0000-4000-a000-000000000004'),
+  -- Sarah → Midtown Thu server (cross-location!)
+  ('aa000000-0000-4000-a000-000000000101', 'f0000000-0000-4000-a000-000000000101', 'd0000000-0000-4000-a000-000000000010', 'd0000000-0000-4000-a000-000000000003'),
+  -- Maria → Downtown Sat server (fills hc=2 gap on f0..08)
+  ('aa000000-0000-4000-a000-000000000102', 'f0000000-0000-4000-a000-000000000008', 'd0000000-0000-4000-a000-000000000014', 'd0000000-0000-4000-a000-000000000002'),
+  -- Mike → Downtown Sun bartender (fills open f0..09)
+  ('aa000000-0000-4000-a000-000000000103', 'f0000000-0000-4000-a000-000000000009', 'd0000000-0000-4000-a000-000000000011', 'd0000000-0000-4000-a000-000000000002');
+
+-- Additional swap requests
+INSERT INTO swap_requests (id, type, requester_assignment_id, status, requester_reason, expires_at) VALUES
+  -- Jen drops Beachfront Wed server (pending)
+  ('bb000000-0000-4000-a000-000000000006', 'drop',
+   'aa000000-0000-4000-a000-000000000044', -- Jen's Wed server at Beachfront
+   'pending_manager', 'Need to attend a college class Wednesday afternoons',
+   date_trunc('week', CURRENT_DATE)::timestamp + INTERVAL '2 days 8 hours'),
+  -- Lisa drops Midtown Thu host (pending)
+  ('bb000000-0000-4000-a000-000000000007', 'drop',
+   'aa000000-0000-4000-a000-000000000036', -- Lisa's Thu host at Midtown
+   'pending_manager', 'Dentist appointment Thursday morning — cannot make the shift',
+   date_trunc('week', CURRENT_DATE)::timestamp + INTERVAL '3 days 8 hours');
+
+-- Additional notifications
+INSERT INTO notifications (user_id, type, title, message, metadata, is_read, created_at) VALUES
+  -- Manager notifications about pending drops
+  ('d0000000-0000-4000-a000-000000000003', 'swap_request',
+   'Drop Request: Lisa Kim', 'Lisa Kim is requesting to drop her Thursday host shift at Midtown. Please review.',
+   '{"swapRequestId": "bb000000-0000-4000-a000-000000000007"}',
+   false, NOW() - INTERVAL '6 hours'),
+  ('d0000000-0000-4000-a000-000000000005', 'swap_request',
+   'Drop Request: Jen Clark', 'Jen Clark is requesting to drop her Wednesday server shift at Beachfront. Please review.',
+   '{"swapRequestId": "bb000000-0000-4000-a000-000000000006"}',
+   false, NOW() - INTERVAL '8 hours'),
+  -- Multi-loc assignment notifications
+  ('d0000000-0000-4000-a000-000000000011', 'schedule_update',
+   'New Shift: Westside LA', 'You''ve been assigned to a Wednesday server shift (10:00 AM - 6:00 PM PT) at Coastal Eats Westside.',
+   '{"shiftId": "f0000000-0000-4000-a000-000000000100", "locationId": "b0000000-0000-4000-a000-000000000003"}',
+   true, NOW() - INTERVAL '3 days'),
+  ('d0000000-0000-4000-a000-000000000010', 'schedule_update',
+   'New Shift: Midtown NY', 'You''ve been assigned to a Thursday server shift (9:00 AM - 5:00 PM ET) at Coastal Eats Midtown.',
+   '{"shiftId": "f0000000-0000-4000-a000-000000000101", "locationId": "b0000000-0000-4000-a000-000000000002"}',
+   true, NOW() - INTERVAL '3 days'),
+  -- Staff notifications about schedules
+  ('d0000000-0000-4000-a000-000000000015', 'schedule_update',
+   'Schedule Published', 'The Midtown schedule for this week has been published. Check your shifts.',
+   '{"scheduleId": "e0000000-0000-4000-a000-000000000004"}',
+   true, NOW() - INTERVAL '2 days'),
+  ('d0000000-0000-4000-a000-000000000018', 'schedule_update',
+   'Schedule Published', 'The Westside schedule for this week has been published. Check your shifts.',
+   '{"scheduleId": "e0000000-0000-4000-a000-000000000003"}',
+   true, NOW() - INTERVAL '3 days'),
+  ('d0000000-0000-4000-a000-000000000021', 'schedule_update',
+   'Schedule Published', 'The Beachfront schedule for this week has been published. Check your shifts.',
+   '{"scheduleId": "e0000000-0000-4000-a000-000000000005"}',
+   false, NOW() - INTERVAL '1 day'),
+  ('d0000000-0000-4000-a000-000000000020', 'swap_update',
+   'Drop Request Submitted', 'Your request to drop the Wednesday server shift at Beachfront has been submitted.',
+   '{"swapRequestId": "bb000000-0000-4000-a000-000000000006"}',
+   true, NOW() - INTERVAL '8 hours'),
+  ('d0000000-0000-4000-a000-000000000016', 'swap_update',
+   'Drop Request Submitted', 'Your request to drop the Thursday host shift at Midtown has been submitted.',
+   '{"swapRequestId": "bb000000-0000-4000-a000-000000000007"}',
+   true, NOW() - INTERVAL '6 hours'),
+  -- Casey gets fairness alert about Chris at Beachfront
+  ('d0000000-0000-4000-a000-000000000004', 'system',
+   'Fairness Alert: Beachfront', 'Chris Allen has received all premium shifts at Beachfront for 2 consecutive weeks. Consider rotating premium assignments.',
+   '{"locationId": "b0000000-0000-4000-a000-000000000004", "staffId": "d0000000-0000-4000-a000-000000000021"}',
+   false, NOW() - INTERVAL '12 hours'),
+  -- Jordan notified about overtime
+  ('d0000000-0000-4000-a000-000000000002', 'system',
+   'Overtime Alert: James Wilson', 'James Wilson is projected at 44 hours this week at Downtown, exceeding the 40-hour threshold.',
+   '{"staffId": "d0000000-0000-4000-a000-000000000013", "locationId": "b0000000-0000-4000-a000-000000000001"}',
+   false, NOW() - INTERVAL '2 days'),
+  -- Admin gets weekly digest
+  ('d0000000-0000-4000-a000-000000000001', 'system',
+   'Weekly Summary', '4 locations active this week. 2 overtime alerts, 4 pending swap/drop requests, 1 fairness flag.',
+   '{}',
+   false, NOW() - INTERVAL '1 day');
