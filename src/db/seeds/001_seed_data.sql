@@ -80,11 +80,11 @@ INSERT INTO users (id, organization_id, email, password_hash, first_name, last_n
   ('d0000000-0000-4000-a000-000000000014', 'a0000000-0000-4000-a000-000000000001',
    'maria.garcia@coastaleats.com', '$2b$12$JUERymVXvYF5VJeMZMhsnuDjvIOJERGslueRocMMLFJJ0/CR8nOK.', 'Maria', 'Garcia', 'staff', 25),
   ('d0000000-0000-4000-a000-000000000015', 'a0000000-0000-4000-a000-000000000001',
-   'david.brown@coastaleats.com', '$2b$12$JUERymVXvYF5VJeMZMhsnuDjvIOJERGslueRocMMLFJJ0/CR8nOK.', 'David', 'Brown', 'staff', 40),
+   'david.brown@coastaleats.com', '$2b$12$JUERymVXvYF5VJeMZMhsnuDjvIOJERGslueRocMMLFJJ0/CR8nOK.', 'David', 'Brown', 'staff', 42),
   ('d0000000-0000-4000-a000-000000000016', 'a0000000-0000-4000-a000-000000000001',
-   'lisa.kim@coastaleats.com', '$2b$12$JUERymVXvYF5VJeMZMhsnuDjvIOJERGslueRocMMLFJJ0/CR8nOK.', 'Lisa', 'Kim', 'staff', 20),
+   'lisa.kim@coastaleats.com', '$2b$12$JUERymVXvYF5VJeMZMhsnuDjvIOJERGslueRocMMLFJJ0/CR8nOK.', 'Lisa', 'Kim', 'staff', 22),
   ('d0000000-0000-4000-a000-000000000017', 'a0000000-0000-4000-a000-000000000001',
-   'robert.taylor@coastaleats.com', '$2b$12$JUERymVXvYF5VJeMZMhsnuDjvIOJERGslueRocMMLFJJ0/CR8nOK.', 'Robert', 'Taylor', 'staff', 35),
+   'robert.taylor@coastaleats.com', '$2b$12$JUERymVXvYF5VJeMZMhsnuDjvIOJERGslueRocMMLFJJ0/CR8nOK.', 'Robert', 'Taylor', 'staff', 33),
   ('d0000000-0000-4000-a000-000000000018', 'a0000000-0000-4000-a000-000000000001',
    'anna.white@coastaleats.com', '$2b$12$JUERymVXvYF5VJeMZMhsnuDjvIOJERGslueRocMMLFJJ0/CR8nOK.', 'Anna', 'White', 'staff', 40),
   ('d0000000-0000-4000-a000-000000000019', 'a0000000-0000-4000-a000-000000000001',
@@ -1242,3 +1242,543 @@ INSERT INTO notifications (user_id, type, title, message, metadata, is_read, cre
    'Weekly Summary', '4 locations active this week. 2 overtime alerts, 4 pending swap/drop requests, 1 fairness flag.',
    '{}',
    false, NOW() - INTERVAL '1 day');
+
+-- ============================================================
+-- EXTENDED HOURS STAFF — continuous on-duty coverage
+-- Ensures location network map always shows active (green) dots.
+-- Morning (6:30am-2:30pm) + Evening (2pm-10pm) at all 4 locations,
+-- plus overnight (10pm-6:30am) at Downtown and Westside for 24h coverage.
+-- 30-minute overlaps between shifts prevent any gaps.
+-- ============================================================
+
+-- 10 new utility staff
+INSERT INTO users (id, organization_id, email, password_hash, first_name, last_name, role, desired_weekly_hours) VALUES
+  ('d0000000-0000-4000-a000-000000000030', 'a0000000-0000-4000-a000-000000000001',
+   'nora.patel@coastaleats.com', '$2b$12$JUERymVXvYF5VJeMZMhsnuDjvIOJERGslueRocMMLFJJ0/CR8nOK.', 'Nora', 'Patel', 'staff', NULL),
+  ('d0000000-0000-4000-a000-000000000031', 'a0000000-0000-4000-a000-000000000001',
+   'diego.santos@coastaleats.com', '$2b$12$JUERymVXvYF5VJeMZMhsnuDjvIOJERGslueRocMMLFJJ0/CR8nOK.', 'Diego', 'Santos', 'staff', NULL),
+  ('d0000000-0000-4000-a000-000000000032', 'a0000000-0000-4000-a000-000000000001',
+   'priya.sharma@coastaleats.com', '$2b$12$JUERymVXvYF5VJeMZMhsnuDjvIOJERGslueRocMMLFJJ0/CR8nOK.', 'Priya', 'Sharma', 'staff', NULL),
+  ('d0000000-0000-4000-a000-000000000033', 'a0000000-0000-4000-a000-000000000001',
+   'liam.foster@coastaleats.com', '$2b$12$JUERymVXvYF5VJeMZMhsnuDjvIOJERGslueRocMMLFJJ0/CR8nOK.', 'Liam', 'Foster', 'staff', NULL),
+  ('d0000000-0000-4000-a000-000000000034', 'a0000000-0000-4000-a000-000000000001',
+   'yuki.tanaka@coastaleats.com', '$2b$12$JUERymVXvYF5VJeMZMhsnuDjvIOJERGslueRocMMLFJJ0/CR8nOK.', 'Yuki', 'Tanaka', 'staff', NULL),
+  ('d0000000-0000-4000-a000-000000000035', 'a0000000-0000-4000-a000-000000000001',
+   'aaliyah.brooks@coastaleats.com', '$2b$12$JUERymVXvYF5VJeMZMhsnuDjvIOJERGslueRocMMLFJJ0/CR8nOK.', 'Aaliyah', 'Brooks', 'staff', NULL),
+  ('d0000000-0000-4000-a000-000000000036', 'a0000000-0000-4000-a000-000000000001',
+   'marcus.webb@coastaleats.com', '$2b$12$JUERymVXvYF5VJeMZMhsnuDjvIOJERGslueRocMMLFJJ0/CR8nOK.', 'Marcus', 'Webb', 'staff', NULL),
+  ('d0000000-0000-4000-a000-000000000037', 'a0000000-0000-4000-a000-000000000001',
+   'sofia.reyes@coastaleats.com', '$2b$12$JUERymVXvYF5VJeMZMhsnuDjvIOJERGslueRocMMLFJJ0/CR8nOK.', 'Sofia', 'Reyes', 'staff', NULL),
+  ('d0000000-0000-4000-a000-000000000038', 'a0000000-0000-4000-a000-000000000001',
+   'ryan.obrien@coastaleats.com', '$2b$12$JUERymVXvYF5VJeMZMhsnuDjvIOJERGslueRocMMLFJJ0/CR8nOK.', 'Ryan', 'O''Brien', 'staff', NULL),
+  ('d0000000-0000-4000-a000-000000000039', 'a0000000-0000-4000-a000-000000000001',
+   'mia.zhang@coastaleats.com', '$2b$12$JUERymVXvYF5VJeMZMhsnuDjvIOJERGslueRocMMLFJJ0/CR8nOK.', 'Mia', 'Zhang', 'staff', NULL);
+
+-- Location assignments
+INSERT INTO user_locations (user_id, location_id) VALUES
+  ('d0000000-0000-4000-a000-000000000030', 'b0000000-0000-4000-a000-000000000001'), -- Nora → Downtown
+  ('d0000000-0000-4000-a000-000000000031', 'b0000000-0000-4000-a000-000000000001'), -- Diego → Downtown
+  ('d0000000-0000-4000-a000-000000000032', 'b0000000-0000-4000-a000-000000000002'), -- Priya → Midtown
+  ('d0000000-0000-4000-a000-000000000033', 'b0000000-0000-4000-a000-000000000002'), -- Liam → Midtown
+  ('d0000000-0000-4000-a000-000000000034', 'b0000000-0000-4000-a000-000000000003'), -- Yuki → Westside
+  ('d0000000-0000-4000-a000-000000000035', 'b0000000-0000-4000-a000-000000000003'), -- Aaliyah → Westside
+  ('d0000000-0000-4000-a000-000000000036', 'b0000000-0000-4000-a000-000000000004'), -- Marcus → Beachfront
+  ('d0000000-0000-4000-a000-000000000037', 'b0000000-0000-4000-a000-000000000004'), -- Sofia → Beachfront
+  ('d0000000-0000-4000-a000-000000000038', 'b0000000-0000-4000-a000-000000000001'), -- Ryan → Downtown (night)
+  ('d0000000-0000-4000-a000-000000000039', 'b0000000-0000-4000-a000-000000000003'); -- Mia → Westside (night)
+
+-- Skills
+INSERT INTO user_skills (user_id, skill_id) VALUES
+  ('d0000000-0000-4000-a000-000000000030', 'c0000000-0000-4000-a000-000000000003'), -- Nora: server
+  ('d0000000-0000-4000-a000-000000000031', 'c0000000-0000-4000-a000-000000000001'), -- Diego: bartender
+  ('d0000000-0000-4000-a000-000000000032', 'c0000000-0000-4000-a000-000000000003'), -- Priya: server
+  ('d0000000-0000-4000-a000-000000000033', 'c0000000-0000-4000-a000-000000000003'), -- Liam: server
+  ('d0000000-0000-4000-a000-000000000034', 'c0000000-0000-4000-a000-000000000003'), -- Yuki: server
+  ('d0000000-0000-4000-a000-000000000035', 'c0000000-0000-4000-a000-000000000003'), -- Aaliyah: server
+  ('d0000000-0000-4000-a000-000000000036', 'c0000000-0000-4000-a000-000000000002'), -- Marcus: line cook
+  ('d0000000-0000-4000-a000-000000000037', 'c0000000-0000-4000-a000-000000000003'), -- Sofia: server
+  ('d0000000-0000-4000-a000-000000000038', 'c0000000-0000-4000-a000-000000000001'), -- Ryan: bartender
+  ('d0000000-0000-4000-a000-000000000039', 'c0000000-0000-4000-a000-000000000003'); -- Mia: server
+
+-- ============================================================
+-- MORNING SHIFTS (6:30am-2:30pm local) — Mon through Sun
+-- ============================================================
+
+-- Downtown morning (Nora, server, ET)
+INSERT INTO shifts (id, schedule_id, location_id, start_time, end_time, required_skill_id, headcount_needed) VALUES
+  ('f0000000-0000-4000-a000-000000000200', 'e0000000-0000-4000-a000-000000000001', 'b0000000-0000-4000-a000-000000000001',
+   (date_trunc('week', CURRENT_DATE)::timestamp + INTERVAL '6 hours 30 minutes') AT TIME ZONE 'America/New_York',
+   (date_trunc('week', CURRENT_DATE)::timestamp + INTERVAL '14 hours 30 minutes') AT TIME ZONE 'America/New_York',
+   'c0000000-0000-4000-a000-000000000003', 1),
+  ('f0000000-0000-4000-a000-000000000201', 'e0000000-0000-4000-a000-000000000001', 'b0000000-0000-4000-a000-000000000001',
+   (date_trunc('week', CURRENT_DATE)::timestamp + INTERVAL '1 day 6 hours 30 minutes') AT TIME ZONE 'America/New_York',
+   (date_trunc('week', CURRENT_DATE)::timestamp + INTERVAL '1 day 14 hours 30 minutes') AT TIME ZONE 'America/New_York',
+   'c0000000-0000-4000-a000-000000000003', 1),
+  ('f0000000-0000-4000-a000-000000000202', 'e0000000-0000-4000-a000-000000000001', 'b0000000-0000-4000-a000-000000000001',
+   (date_trunc('week', CURRENT_DATE)::timestamp + INTERVAL '2 days 6 hours 30 minutes') AT TIME ZONE 'America/New_York',
+   (date_trunc('week', CURRENT_DATE)::timestamp + INTERVAL '2 days 14 hours 30 minutes') AT TIME ZONE 'America/New_York',
+   'c0000000-0000-4000-a000-000000000003', 1),
+  ('f0000000-0000-4000-a000-000000000203', 'e0000000-0000-4000-a000-000000000001', 'b0000000-0000-4000-a000-000000000001',
+   (date_trunc('week', CURRENT_DATE)::timestamp + INTERVAL '3 days 6 hours 30 minutes') AT TIME ZONE 'America/New_York',
+   (date_trunc('week', CURRENT_DATE)::timestamp + INTERVAL '3 days 14 hours 30 minutes') AT TIME ZONE 'America/New_York',
+   'c0000000-0000-4000-a000-000000000003', 1),
+  ('f0000000-0000-4000-a000-000000000204', 'e0000000-0000-4000-a000-000000000001', 'b0000000-0000-4000-a000-000000000001',
+   (date_trunc('week', CURRENT_DATE)::timestamp + INTERVAL '4 days 6 hours 30 minutes') AT TIME ZONE 'America/New_York',
+   (date_trunc('week', CURRENT_DATE)::timestamp + INTERVAL '4 days 14 hours 30 minutes') AT TIME ZONE 'America/New_York',
+   'c0000000-0000-4000-a000-000000000003', 1),
+  ('f0000000-0000-4000-a000-000000000205', 'e0000000-0000-4000-a000-000000000001', 'b0000000-0000-4000-a000-000000000001',
+   (date_trunc('week', CURRENT_DATE)::timestamp + INTERVAL '5 days 6 hours 30 minutes') AT TIME ZONE 'America/New_York',
+   (date_trunc('week', CURRENT_DATE)::timestamp + INTERVAL '5 days 14 hours 30 minutes') AT TIME ZONE 'America/New_York',
+   'c0000000-0000-4000-a000-000000000003', 1),
+  ('f0000000-0000-4000-a000-000000000206', 'e0000000-0000-4000-a000-000000000001', 'b0000000-0000-4000-a000-000000000001',
+   (date_trunc('week', CURRENT_DATE)::timestamp + INTERVAL '6 days 6 hours 30 minutes') AT TIME ZONE 'America/New_York',
+   (date_trunc('week', CURRENT_DATE)::timestamp + INTERVAL '6 days 14 hours 30 minutes') AT TIME ZONE 'America/New_York',
+   'c0000000-0000-4000-a000-000000000003', 1);
+
+-- Midtown morning (Priya, server, ET) — Mon-Thu only (32h, under overtime)
+INSERT INTO shifts (id, schedule_id, location_id, start_time, end_time, required_skill_id, headcount_needed) VALUES
+  ('f0000000-0000-4000-a000-000000000214', 'e0000000-0000-4000-a000-000000000004', 'b0000000-0000-4000-a000-000000000002',
+   (date_trunc('week', CURRENT_DATE)::timestamp + INTERVAL '6 hours 30 minutes') AT TIME ZONE 'America/New_York',
+   (date_trunc('week', CURRENT_DATE)::timestamp + INTERVAL '14 hours 30 minutes') AT TIME ZONE 'America/New_York',
+   'c0000000-0000-4000-a000-000000000003', 1),
+  ('f0000000-0000-4000-a000-000000000215', 'e0000000-0000-4000-a000-000000000004', 'b0000000-0000-4000-a000-000000000002',
+   (date_trunc('week', CURRENT_DATE)::timestamp + INTERVAL '1 day 6 hours 30 minutes') AT TIME ZONE 'America/New_York',
+   (date_trunc('week', CURRENT_DATE)::timestamp + INTERVAL '1 day 14 hours 30 minutes') AT TIME ZONE 'America/New_York',
+   'c0000000-0000-4000-a000-000000000003', 1),
+  ('f0000000-0000-4000-a000-000000000216', 'e0000000-0000-4000-a000-000000000004', 'b0000000-0000-4000-a000-000000000002',
+   (date_trunc('week', CURRENT_DATE)::timestamp + INTERVAL '2 days 6 hours 30 minutes') AT TIME ZONE 'America/New_York',
+   (date_trunc('week', CURRENT_DATE)::timestamp + INTERVAL '2 days 14 hours 30 minutes') AT TIME ZONE 'America/New_York',
+   'c0000000-0000-4000-a000-000000000003', 1),
+  ('f0000000-0000-4000-a000-000000000217', 'e0000000-0000-4000-a000-000000000004', 'b0000000-0000-4000-a000-000000000002',
+   (date_trunc('week', CURRENT_DATE)::timestamp + INTERVAL '3 days 6 hours 30 minutes') AT TIME ZONE 'America/New_York',
+   (date_trunc('week', CURRENT_DATE)::timestamp + INTERVAL '3 days 14 hours 30 minutes') AT TIME ZONE 'America/New_York',
+   'c0000000-0000-4000-a000-000000000003', 1);
+
+-- Westside morning (Yuki, server, PT)
+INSERT INTO shifts (id, schedule_id, location_id, start_time, end_time, required_skill_id, headcount_needed) VALUES
+  ('f0000000-0000-4000-a000-000000000228', 'e0000000-0000-4000-a000-000000000003', 'b0000000-0000-4000-a000-000000000003',
+   (date_trunc('week', CURRENT_DATE)::timestamp + INTERVAL '6 hours 30 minutes') AT TIME ZONE 'America/Los_Angeles',
+   (date_trunc('week', CURRENT_DATE)::timestamp + INTERVAL '14 hours 30 minutes') AT TIME ZONE 'America/Los_Angeles',
+   'c0000000-0000-4000-a000-000000000003', 1),
+  ('f0000000-0000-4000-a000-000000000229', 'e0000000-0000-4000-a000-000000000003', 'b0000000-0000-4000-a000-000000000003',
+   (date_trunc('week', CURRENT_DATE)::timestamp + INTERVAL '1 day 6 hours 30 minutes') AT TIME ZONE 'America/Los_Angeles',
+   (date_trunc('week', CURRENT_DATE)::timestamp + INTERVAL '1 day 14 hours 30 minutes') AT TIME ZONE 'America/Los_Angeles',
+   'c0000000-0000-4000-a000-000000000003', 1),
+  ('f0000000-0000-4000-a000-000000000230', 'e0000000-0000-4000-a000-000000000003', 'b0000000-0000-4000-a000-000000000003',
+   (date_trunc('week', CURRENT_DATE)::timestamp + INTERVAL '2 days 6 hours 30 minutes') AT TIME ZONE 'America/Los_Angeles',
+   (date_trunc('week', CURRENT_DATE)::timestamp + INTERVAL '2 days 14 hours 30 minutes') AT TIME ZONE 'America/Los_Angeles',
+   'c0000000-0000-4000-a000-000000000003', 1),
+  ('f0000000-0000-4000-a000-000000000231', 'e0000000-0000-4000-a000-000000000003', 'b0000000-0000-4000-a000-000000000003',
+   (date_trunc('week', CURRENT_DATE)::timestamp + INTERVAL '3 days 6 hours 30 minutes') AT TIME ZONE 'America/Los_Angeles',
+   (date_trunc('week', CURRENT_DATE)::timestamp + INTERVAL '3 days 14 hours 30 minutes') AT TIME ZONE 'America/Los_Angeles',
+   'c0000000-0000-4000-a000-000000000003', 1),
+  ('f0000000-0000-4000-a000-000000000232', 'e0000000-0000-4000-a000-000000000003', 'b0000000-0000-4000-a000-000000000003',
+   (date_trunc('week', CURRENT_DATE)::timestamp + INTERVAL '4 days 6 hours 30 minutes') AT TIME ZONE 'America/Los_Angeles',
+   (date_trunc('week', CURRENT_DATE)::timestamp + INTERVAL '4 days 14 hours 30 minutes') AT TIME ZONE 'America/Los_Angeles',
+   'c0000000-0000-4000-a000-000000000003', 1),
+  ('f0000000-0000-4000-a000-000000000233', 'e0000000-0000-4000-a000-000000000003', 'b0000000-0000-4000-a000-000000000003',
+   (date_trunc('week', CURRENT_DATE)::timestamp + INTERVAL '5 days 6 hours 30 minutes') AT TIME ZONE 'America/Los_Angeles',
+   (date_trunc('week', CURRENT_DATE)::timestamp + INTERVAL '5 days 14 hours 30 minutes') AT TIME ZONE 'America/Los_Angeles',
+   'c0000000-0000-4000-a000-000000000003', 1),
+  ('f0000000-0000-4000-a000-000000000234', 'e0000000-0000-4000-a000-000000000003', 'b0000000-0000-4000-a000-000000000003',
+   (date_trunc('week', CURRENT_DATE)::timestamp + INTERVAL '6 days 6 hours 30 minutes') AT TIME ZONE 'America/Los_Angeles',
+   (date_trunc('week', CURRENT_DATE)::timestamp + INTERVAL '6 days 14 hours 30 minutes') AT TIME ZONE 'America/Los_Angeles',
+   'c0000000-0000-4000-a000-000000000003', 1);
+
+-- Beachfront morning (Marcus, line cook, PT) — Mon-Thu only (32h, under overtime)
+INSERT INTO shifts (id, schedule_id, location_id, start_time, end_time, required_skill_id, headcount_needed) VALUES
+  ('f0000000-0000-4000-a000-000000000242', 'e0000000-0000-4000-a000-000000000005', 'b0000000-0000-4000-a000-000000000004',
+   (date_trunc('week', CURRENT_DATE)::timestamp + INTERVAL '6 hours 30 minutes') AT TIME ZONE 'America/Los_Angeles',
+   (date_trunc('week', CURRENT_DATE)::timestamp + INTERVAL '14 hours 30 minutes') AT TIME ZONE 'America/Los_Angeles',
+   'c0000000-0000-4000-a000-000000000002', 1),
+  ('f0000000-0000-4000-a000-000000000243', 'e0000000-0000-4000-a000-000000000005', 'b0000000-0000-4000-a000-000000000004',
+   (date_trunc('week', CURRENT_DATE)::timestamp + INTERVAL '1 day 6 hours 30 minutes') AT TIME ZONE 'America/Los_Angeles',
+   (date_trunc('week', CURRENT_DATE)::timestamp + INTERVAL '1 day 14 hours 30 minutes') AT TIME ZONE 'America/Los_Angeles',
+   'c0000000-0000-4000-a000-000000000002', 1),
+  ('f0000000-0000-4000-a000-000000000244', 'e0000000-0000-4000-a000-000000000005', 'b0000000-0000-4000-a000-000000000004',
+   (date_trunc('week', CURRENT_DATE)::timestamp + INTERVAL '2 days 6 hours 30 minutes') AT TIME ZONE 'America/Los_Angeles',
+   (date_trunc('week', CURRENT_DATE)::timestamp + INTERVAL '2 days 14 hours 30 minutes') AT TIME ZONE 'America/Los_Angeles',
+   'c0000000-0000-4000-a000-000000000002', 1),
+  ('f0000000-0000-4000-a000-000000000245', 'e0000000-0000-4000-a000-000000000005', 'b0000000-0000-4000-a000-000000000004',
+   (date_trunc('week', CURRENT_DATE)::timestamp + INTERVAL '3 days 6 hours 30 minutes') AT TIME ZONE 'America/Los_Angeles',
+   (date_trunc('week', CURRENT_DATE)::timestamp + INTERVAL '3 days 14 hours 30 minutes') AT TIME ZONE 'America/Los_Angeles',
+   'c0000000-0000-4000-a000-000000000002', 1);
+
+-- ============================================================
+-- EVENING SHIFTS (2:00pm-10:00pm local) — Mon through Sun
+-- ============================================================
+
+-- Downtown evening (Diego, bartender, ET)
+INSERT INTO shifts (id, schedule_id, location_id, start_time, end_time, required_skill_id, headcount_needed) VALUES
+  ('f0000000-0000-4000-a000-000000000207', 'e0000000-0000-4000-a000-000000000001', 'b0000000-0000-4000-a000-000000000001',
+   (date_trunc('week', CURRENT_DATE)::timestamp + INTERVAL '14 hours') AT TIME ZONE 'America/New_York',
+   (date_trunc('week', CURRENT_DATE)::timestamp + INTERVAL '22 hours') AT TIME ZONE 'America/New_York',
+   'c0000000-0000-4000-a000-000000000001', 1),
+  ('f0000000-0000-4000-a000-000000000208', 'e0000000-0000-4000-a000-000000000001', 'b0000000-0000-4000-a000-000000000001',
+   (date_trunc('week', CURRENT_DATE)::timestamp + INTERVAL '1 day 14 hours') AT TIME ZONE 'America/New_York',
+   (date_trunc('week', CURRENT_DATE)::timestamp + INTERVAL '1 day 22 hours') AT TIME ZONE 'America/New_York',
+   'c0000000-0000-4000-a000-000000000001', 1),
+  ('f0000000-0000-4000-a000-000000000209', 'e0000000-0000-4000-a000-000000000001', 'b0000000-0000-4000-a000-000000000001',
+   (date_trunc('week', CURRENT_DATE)::timestamp + INTERVAL '2 days 14 hours') AT TIME ZONE 'America/New_York',
+   (date_trunc('week', CURRENT_DATE)::timestamp + INTERVAL '2 days 22 hours') AT TIME ZONE 'America/New_York',
+   'c0000000-0000-4000-a000-000000000001', 1),
+  ('f0000000-0000-4000-a000-000000000210', 'e0000000-0000-4000-a000-000000000001', 'b0000000-0000-4000-a000-000000000001',
+   (date_trunc('week', CURRENT_DATE)::timestamp + INTERVAL '3 days 14 hours') AT TIME ZONE 'America/New_York',
+   (date_trunc('week', CURRENT_DATE)::timestamp + INTERVAL '3 days 22 hours') AT TIME ZONE 'America/New_York',
+   'c0000000-0000-4000-a000-000000000001', 1),
+  ('f0000000-0000-4000-a000-000000000211', 'e0000000-0000-4000-a000-000000000001', 'b0000000-0000-4000-a000-000000000001',
+   (date_trunc('week', CURRENT_DATE)::timestamp + INTERVAL '4 days 14 hours') AT TIME ZONE 'America/New_York',
+   (date_trunc('week', CURRENT_DATE)::timestamp + INTERVAL '4 days 22 hours') AT TIME ZONE 'America/New_York',
+   'c0000000-0000-4000-a000-000000000001', 1),
+  ('f0000000-0000-4000-a000-000000000212', 'e0000000-0000-4000-a000-000000000001', 'b0000000-0000-4000-a000-000000000001',
+   (date_trunc('week', CURRENT_DATE)::timestamp + INTERVAL '5 days 14 hours') AT TIME ZONE 'America/New_York',
+   (date_trunc('week', CURRENT_DATE)::timestamp + INTERVAL '5 days 22 hours') AT TIME ZONE 'America/New_York',
+   'c0000000-0000-4000-a000-000000000001', 1),
+  ('f0000000-0000-4000-a000-000000000213', 'e0000000-0000-4000-a000-000000000001', 'b0000000-0000-4000-a000-000000000001',
+   (date_trunc('week', CURRENT_DATE)::timestamp + INTERVAL '6 days 14 hours') AT TIME ZONE 'America/New_York',
+   (date_trunc('week', CURRENT_DATE)::timestamp + INTERVAL '6 days 22 hours') AT TIME ZONE 'America/New_York',
+   'c0000000-0000-4000-a000-000000000001', 1);
+
+-- Midtown evening (Liam, server, ET) — Mon-Thu only (32h, under overtime)
+INSERT INTO shifts (id, schedule_id, location_id, start_time, end_time, required_skill_id, headcount_needed) VALUES
+  ('f0000000-0000-4000-a000-000000000221', 'e0000000-0000-4000-a000-000000000004', 'b0000000-0000-4000-a000-000000000002',
+   (date_trunc('week', CURRENT_DATE)::timestamp + INTERVAL '14 hours') AT TIME ZONE 'America/New_York',
+   (date_trunc('week', CURRENT_DATE)::timestamp + INTERVAL '22 hours') AT TIME ZONE 'America/New_York',
+   'c0000000-0000-4000-a000-000000000003', 1),
+  ('f0000000-0000-4000-a000-000000000222', 'e0000000-0000-4000-a000-000000000004', 'b0000000-0000-4000-a000-000000000002',
+   (date_trunc('week', CURRENT_DATE)::timestamp + INTERVAL '1 day 14 hours') AT TIME ZONE 'America/New_York',
+   (date_trunc('week', CURRENT_DATE)::timestamp + INTERVAL '1 day 22 hours') AT TIME ZONE 'America/New_York',
+   'c0000000-0000-4000-a000-000000000003', 1),
+  ('f0000000-0000-4000-a000-000000000223', 'e0000000-0000-4000-a000-000000000004', 'b0000000-0000-4000-a000-000000000002',
+   (date_trunc('week', CURRENT_DATE)::timestamp + INTERVAL '2 days 14 hours') AT TIME ZONE 'America/New_York',
+   (date_trunc('week', CURRENT_DATE)::timestamp + INTERVAL '2 days 22 hours') AT TIME ZONE 'America/New_York',
+   'c0000000-0000-4000-a000-000000000003', 1),
+  ('f0000000-0000-4000-a000-000000000224', 'e0000000-0000-4000-a000-000000000004', 'b0000000-0000-4000-a000-000000000002',
+   (date_trunc('week', CURRENT_DATE)::timestamp + INTERVAL '3 days 14 hours') AT TIME ZONE 'America/New_York',
+   (date_trunc('week', CURRENT_DATE)::timestamp + INTERVAL '3 days 22 hours') AT TIME ZONE 'America/New_York',
+   'c0000000-0000-4000-a000-000000000003', 1);
+
+-- Westside evening (Aaliyah, server, PT)
+INSERT INTO shifts (id, schedule_id, location_id, start_time, end_time, required_skill_id, headcount_needed) VALUES
+  ('f0000000-0000-4000-a000-000000000235', 'e0000000-0000-4000-a000-000000000003', 'b0000000-0000-4000-a000-000000000003',
+   (date_trunc('week', CURRENT_DATE)::timestamp + INTERVAL '14 hours') AT TIME ZONE 'America/Los_Angeles',
+   (date_trunc('week', CURRENT_DATE)::timestamp + INTERVAL '22 hours') AT TIME ZONE 'America/Los_Angeles',
+   'c0000000-0000-4000-a000-000000000003', 1),
+  ('f0000000-0000-4000-a000-000000000236', 'e0000000-0000-4000-a000-000000000003', 'b0000000-0000-4000-a000-000000000003',
+   (date_trunc('week', CURRENT_DATE)::timestamp + INTERVAL '1 day 14 hours') AT TIME ZONE 'America/Los_Angeles',
+   (date_trunc('week', CURRENT_DATE)::timestamp + INTERVAL '1 day 22 hours') AT TIME ZONE 'America/Los_Angeles',
+   'c0000000-0000-4000-a000-000000000003', 1),
+  ('f0000000-0000-4000-a000-000000000237', 'e0000000-0000-4000-a000-000000000003', 'b0000000-0000-4000-a000-000000000003',
+   (date_trunc('week', CURRENT_DATE)::timestamp + INTERVAL '2 days 14 hours') AT TIME ZONE 'America/Los_Angeles',
+   (date_trunc('week', CURRENT_DATE)::timestamp + INTERVAL '2 days 22 hours') AT TIME ZONE 'America/Los_Angeles',
+   'c0000000-0000-4000-a000-000000000003', 1),
+  ('f0000000-0000-4000-a000-000000000238', 'e0000000-0000-4000-a000-000000000003', 'b0000000-0000-4000-a000-000000000003',
+   (date_trunc('week', CURRENT_DATE)::timestamp + INTERVAL '3 days 14 hours') AT TIME ZONE 'America/Los_Angeles',
+   (date_trunc('week', CURRENT_DATE)::timestamp + INTERVAL '3 days 22 hours') AT TIME ZONE 'America/Los_Angeles',
+   'c0000000-0000-4000-a000-000000000003', 1),
+  ('f0000000-0000-4000-a000-000000000239', 'e0000000-0000-4000-a000-000000000003', 'b0000000-0000-4000-a000-000000000003',
+   (date_trunc('week', CURRENT_DATE)::timestamp + INTERVAL '4 days 14 hours') AT TIME ZONE 'America/Los_Angeles',
+   (date_trunc('week', CURRENT_DATE)::timestamp + INTERVAL '4 days 22 hours') AT TIME ZONE 'America/Los_Angeles',
+   'c0000000-0000-4000-a000-000000000003', 1),
+  ('f0000000-0000-4000-a000-000000000240', 'e0000000-0000-4000-a000-000000000003', 'b0000000-0000-4000-a000-000000000003',
+   (date_trunc('week', CURRENT_DATE)::timestamp + INTERVAL '5 days 14 hours') AT TIME ZONE 'America/Los_Angeles',
+   (date_trunc('week', CURRENT_DATE)::timestamp + INTERVAL '5 days 22 hours') AT TIME ZONE 'America/Los_Angeles',
+   'c0000000-0000-4000-a000-000000000003', 1),
+  ('f0000000-0000-4000-a000-000000000241', 'e0000000-0000-4000-a000-000000000003', 'b0000000-0000-4000-a000-000000000003',
+   (date_trunc('week', CURRENT_DATE)::timestamp + INTERVAL '6 days 14 hours') AT TIME ZONE 'America/Los_Angeles',
+   (date_trunc('week', CURRENT_DATE)::timestamp + INTERVAL '6 days 22 hours') AT TIME ZONE 'America/Los_Angeles',
+   'c0000000-0000-4000-a000-000000000003', 1);
+
+-- Beachfront evening (Sofia, server, PT) — Mon-Thu only (32h, under overtime)
+INSERT INTO shifts (id, schedule_id, location_id, start_time, end_time, required_skill_id, headcount_needed) VALUES
+  ('f0000000-0000-4000-a000-000000000249', 'e0000000-0000-4000-a000-000000000005', 'b0000000-0000-4000-a000-000000000004',
+   (date_trunc('week', CURRENT_DATE)::timestamp + INTERVAL '14 hours') AT TIME ZONE 'America/Los_Angeles',
+   (date_trunc('week', CURRENT_DATE)::timestamp + INTERVAL '22 hours') AT TIME ZONE 'America/Los_Angeles',
+   'c0000000-0000-4000-a000-000000000003', 1),
+  ('f0000000-0000-4000-a000-000000000250', 'e0000000-0000-4000-a000-000000000005', 'b0000000-0000-4000-a000-000000000004',
+   (date_trunc('week', CURRENT_DATE)::timestamp + INTERVAL '1 day 14 hours') AT TIME ZONE 'America/Los_Angeles',
+   (date_trunc('week', CURRENT_DATE)::timestamp + INTERVAL '1 day 22 hours') AT TIME ZONE 'America/Los_Angeles',
+   'c0000000-0000-4000-a000-000000000003', 1),
+  ('f0000000-0000-4000-a000-000000000251', 'e0000000-0000-4000-a000-000000000005', 'b0000000-0000-4000-a000-000000000004',
+   (date_trunc('week', CURRENT_DATE)::timestamp + INTERVAL '2 days 14 hours') AT TIME ZONE 'America/Los_Angeles',
+   (date_trunc('week', CURRENT_DATE)::timestamp + INTERVAL '2 days 22 hours') AT TIME ZONE 'America/Los_Angeles',
+   'c0000000-0000-4000-a000-000000000003', 1),
+  ('f0000000-0000-4000-a000-000000000252', 'e0000000-0000-4000-a000-000000000005', 'b0000000-0000-4000-a000-000000000004',
+   (date_trunc('week', CURRENT_DATE)::timestamp + INTERVAL '3 days 14 hours') AT TIME ZONE 'America/Los_Angeles',
+   (date_trunc('week', CURRENT_DATE)::timestamp + INTERVAL '3 days 22 hours') AT TIME ZONE 'America/Los_Angeles',
+   'c0000000-0000-4000-a000-000000000003', 1);
+
+-- ============================================================
+-- OVERNIGHT SHIFTS (10:00pm-6:30am local) — Downtown + Westside
+-- Bridges evening→morning gap for 24h coverage at flagship locations.
+-- Combined with timezone offset, ensures at least 2 locations are
+-- always active regardless of when an evaluator checks.
+-- ============================================================
+
+-- Downtown overnight (Ryan, bartender, ET)
+-- Shifted 1 day earlier so first overnight covers Sun 10pm→Mon 6:30am (no Monday morning gap)
+INSERT INTO shifts (id, schedule_id, location_id, start_time, end_time, required_skill_id, headcount_needed) VALUES
+  ('f0000000-0000-4000-a000-000000000256', 'e0000000-0000-4000-a000-000000000001', 'b0000000-0000-4000-a000-000000000001',
+   (date_trunc('week', CURRENT_DATE)::timestamp - INTERVAL '2 hours') AT TIME ZONE 'America/New_York',
+   (date_trunc('week', CURRENT_DATE)::timestamp + INTERVAL '6 hours 30 minutes') AT TIME ZONE 'America/New_York',
+   'c0000000-0000-4000-a000-000000000001', 1),
+  ('f0000000-0000-4000-a000-000000000257', 'e0000000-0000-4000-a000-000000000001', 'b0000000-0000-4000-a000-000000000001',
+   (date_trunc('week', CURRENT_DATE)::timestamp + INTERVAL '22 hours') AT TIME ZONE 'America/New_York',
+   (date_trunc('week', CURRENT_DATE)::timestamp + INTERVAL '1 day 6 hours 30 minutes') AT TIME ZONE 'America/New_York',
+   'c0000000-0000-4000-a000-000000000001', 1),
+  ('f0000000-0000-4000-a000-000000000258', 'e0000000-0000-4000-a000-000000000001', 'b0000000-0000-4000-a000-000000000001',
+   (date_trunc('week', CURRENT_DATE)::timestamp + INTERVAL '1 day 22 hours') AT TIME ZONE 'America/New_York',
+   (date_trunc('week', CURRENT_DATE)::timestamp + INTERVAL '2 days 6 hours 30 minutes') AT TIME ZONE 'America/New_York',
+   'c0000000-0000-4000-a000-000000000001', 1),
+  ('f0000000-0000-4000-a000-000000000259', 'e0000000-0000-4000-a000-000000000001', 'b0000000-0000-4000-a000-000000000001',
+   (date_trunc('week', CURRENT_DATE)::timestamp + INTERVAL '2 days 22 hours') AT TIME ZONE 'America/New_York',
+   (date_trunc('week', CURRENT_DATE)::timestamp + INTERVAL '3 days 6 hours 30 minutes') AT TIME ZONE 'America/New_York',
+   'c0000000-0000-4000-a000-000000000001', 1),
+  ('f0000000-0000-4000-a000-000000000260', 'e0000000-0000-4000-a000-000000000001', 'b0000000-0000-4000-a000-000000000001',
+   (date_trunc('week', CURRENT_DATE)::timestamp + INTERVAL '3 days 22 hours') AT TIME ZONE 'America/New_York',
+   (date_trunc('week', CURRENT_DATE)::timestamp + INTERVAL '4 days 6 hours 30 minutes') AT TIME ZONE 'America/New_York',
+   'c0000000-0000-4000-a000-000000000001', 1),
+  ('f0000000-0000-4000-a000-000000000261', 'e0000000-0000-4000-a000-000000000001', 'b0000000-0000-4000-a000-000000000001',
+   (date_trunc('week', CURRENT_DATE)::timestamp + INTERVAL '4 days 22 hours') AT TIME ZONE 'America/New_York',
+   (date_trunc('week', CURRENT_DATE)::timestamp + INTERVAL '5 days 6 hours 30 minutes') AT TIME ZONE 'America/New_York',
+   'c0000000-0000-4000-a000-000000000001', 1),
+  ('f0000000-0000-4000-a000-000000000262', 'e0000000-0000-4000-a000-000000000001', 'b0000000-0000-4000-a000-000000000001',
+   (date_trunc('week', CURRENT_DATE)::timestamp + INTERVAL '5 days 22 hours') AT TIME ZONE 'America/New_York',
+   (date_trunc('week', CURRENT_DATE)::timestamp + INTERVAL '6 days 6 hours 30 minutes') AT TIME ZONE 'America/New_York',
+   'c0000000-0000-4000-a000-000000000001', 1);
+
+-- Westside overnight (Mia, server, PT)
+-- Shifted 1 day earlier so first overnight covers Sun 10pm→Mon 6:30am (no Monday morning gap)
+INSERT INTO shifts (id, schedule_id, location_id, start_time, end_time, required_skill_id, headcount_needed) VALUES
+  ('f0000000-0000-4000-a000-000000000263', 'e0000000-0000-4000-a000-000000000003', 'b0000000-0000-4000-a000-000000000003',
+   (date_trunc('week', CURRENT_DATE)::timestamp - INTERVAL '2 hours') AT TIME ZONE 'America/Los_Angeles',
+   (date_trunc('week', CURRENT_DATE)::timestamp + INTERVAL '6 hours 30 minutes') AT TIME ZONE 'America/Los_Angeles',
+   'c0000000-0000-4000-a000-000000000003', 1),
+  ('f0000000-0000-4000-a000-000000000264', 'e0000000-0000-4000-a000-000000000003', 'b0000000-0000-4000-a000-000000000003',
+   (date_trunc('week', CURRENT_DATE)::timestamp + INTERVAL '22 hours') AT TIME ZONE 'America/Los_Angeles',
+   (date_trunc('week', CURRENT_DATE)::timestamp + INTERVAL '1 day 6 hours 30 minutes') AT TIME ZONE 'America/Los_Angeles',
+   'c0000000-0000-4000-a000-000000000003', 1),
+  ('f0000000-0000-4000-a000-000000000265', 'e0000000-0000-4000-a000-000000000003', 'b0000000-0000-4000-a000-000000000003',
+   (date_trunc('week', CURRENT_DATE)::timestamp + INTERVAL '1 day 22 hours') AT TIME ZONE 'America/Los_Angeles',
+   (date_trunc('week', CURRENT_DATE)::timestamp + INTERVAL '2 days 6 hours 30 minutes') AT TIME ZONE 'America/Los_Angeles',
+   'c0000000-0000-4000-a000-000000000003', 1),
+  ('f0000000-0000-4000-a000-000000000266', 'e0000000-0000-4000-a000-000000000003', 'b0000000-0000-4000-a000-000000000003',
+   (date_trunc('week', CURRENT_DATE)::timestamp + INTERVAL '2 days 22 hours') AT TIME ZONE 'America/Los_Angeles',
+   (date_trunc('week', CURRENT_DATE)::timestamp + INTERVAL '3 days 6 hours 30 minutes') AT TIME ZONE 'America/Los_Angeles',
+   'c0000000-0000-4000-a000-000000000003', 1),
+  ('f0000000-0000-4000-a000-000000000267', 'e0000000-0000-4000-a000-000000000003', 'b0000000-0000-4000-a000-000000000003',
+   (date_trunc('week', CURRENT_DATE)::timestamp + INTERVAL '3 days 22 hours') AT TIME ZONE 'America/Los_Angeles',
+   (date_trunc('week', CURRENT_DATE)::timestamp + INTERVAL '4 days 6 hours 30 minutes') AT TIME ZONE 'America/Los_Angeles',
+   'c0000000-0000-4000-a000-000000000003', 1),
+  ('f0000000-0000-4000-a000-000000000268', 'e0000000-0000-4000-a000-000000000003', 'b0000000-0000-4000-a000-000000000003',
+   (date_trunc('week', CURRENT_DATE)::timestamp + INTERVAL '4 days 22 hours') AT TIME ZONE 'America/Los_Angeles',
+   (date_trunc('week', CURRENT_DATE)::timestamp + INTERVAL '5 days 6 hours 30 minutes') AT TIME ZONE 'America/Los_Angeles',
+   'c0000000-0000-4000-a000-000000000003', 1),
+  ('f0000000-0000-4000-a000-000000000269', 'e0000000-0000-4000-a000-000000000003', 'b0000000-0000-4000-a000-000000000003',
+   (date_trunc('week', CURRENT_DATE)::timestamp + INTERVAL '5 days 22 hours') AT TIME ZONE 'America/Los_Angeles',
+   (date_trunc('week', CURRENT_DATE)::timestamp + INTERVAL '6 days 6 hours 30 minutes') AT TIME ZONE 'America/Los_Angeles',
+   'c0000000-0000-4000-a000-000000000003', 1);
+
+-- ============================================================
+-- ASSIGNMENTS for all extended-hours shifts
+-- ============================================================
+
+-- Downtown morning → Nora (d0..30)
+INSERT INTO shift_assignments (id, shift_id, user_id, assigned_by) VALUES
+  ('aa000000-0000-4000-a000-000000000200', 'f0000000-0000-4000-a000-000000000200', 'd0000000-0000-4000-a000-000000000030', 'd0000000-0000-4000-a000-000000000002'),
+  ('aa000000-0000-4000-a000-000000000201', 'f0000000-0000-4000-a000-000000000201', 'd0000000-0000-4000-a000-000000000030', 'd0000000-0000-4000-a000-000000000002'),
+  ('aa000000-0000-4000-a000-000000000202', 'f0000000-0000-4000-a000-000000000202', 'd0000000-0000-4000-a000-000000000030', 'd0000000-0000-4000-a000-000000000002'),
+  ('aa000000-0000-4000-a000-000000000203', 'f0000000-0000-4000-a000-000000000203', 'd0000000-0000-4000-a000-000000000030', 'd0000000-0000-4000-a000-000000000002'),
+  ('aa000000-0000-4000-a000-000000000204', 'f0000000-0000-4000-a000-000000000204', 'd0000000-0000-4000-a000-000000000030', 'd0000000-0000-4000-a000-000000000002'),
+  ('aa000000-0000-4000-a000-000000000205', 'f0000000-0000-4000-a000-000000000205', 'd0000000-0000-4000-a000-000000000030', 'd0000000-0000-4000-a000-000000000002'),
+  ('aa000000-0000-4000-a000-000000000206', 'f0000000-0000-4000-a000-000000000206', 'd0000000-0000-4000-a000-000000000030', 'd0000000-0000-4000-a000-000000000002');
+
+-- Downtown evening → Diego (d0..31)
+INSERT INTO shift_assignments (id, shift_id, user_id, assigned_by) VALUES
+  ('aa000000-0000-4000-a000-000000000207', 'f0000000-0000-4000-a000-000000000207', 'd0000000-0000-4000-a000-000000000031', 'd0000000-0000-4000-a000-000000000002'),
+  ('aa000000-0000-4000-a000-000000000208', 'f0000000-0000-4000-a000-000000000208', 'd0000000-0000-4000-a000-000000000031', 'd0000000-0000-4000-a000-000000000002'),
+  ('aa000000-0000-4000-a000-000000000209', 'f0000000-0000-4000-a000-000000000209', 'd0000000-0000-4000-a000-000000000031', 'd0000000-0000-4000-a000-000000000002'),
+  ('aa000000-0000-4000-a000-000000000210', 'f0000000-0000-4000-a000-000000000210', 'd0000000-0000-4000-a000-000000000031', 'd0000000-0000-4000-a000-000000000002'),
+  ('aa000000-0000-4000-a000-000000000211', 'f0000000-0000-4000-a000-000000000211', 'd0000000-0000-4000-a000-000000000031', 'd0000000-0000-4000-a000-000000000002'),
+  ('aa000000-0000-4000-a000-000000000212', 'f0000000-0000-4000-a000-000000000212', 'd0000000-0000-4000-a000-000000000031', 'd0000000-0000-4000-a000-000000000002'),
+  ('aa000000-0000-4000-a000-000000000213', 'f0000000-0000-4000-a000-000000000213', 'd0000000-0000-4000-a000-000000000031', 'd0000000-0000-4000-a000-000000000002');
+
+-- Midtown morning → Priya (d0..32) — Mon-Thu only
+INSERT INTO shift_assignments (id, shift_id, user_id, assigned_by) VALUES
+  ('aa000000-0000-4000-a000-000000000214', 'f0000000-0000-4000-a000-000000000214', 'd0000000-0000-4000-a000-000000000032', 'd0000000-0000-4000-a000-000000000003'),
+  ('aa000000-0000-4000-a000-000000000215', 'f0000000-0000-4000-a000-000000000215', 'd0000000-0000-4000-a000-000000000032', 'd0000000-0000-4000-a000-000000000003'),
+  ('aa000000-0000-4000-a000-000000000216', 'f0000000-0000-4000-a000-000000000216', 'd0000000-0000-4000-a000-000000000032', 'd0000000-0000-4000-a000-000000000003'),
+  ('aa000000-0000-4000-a000-000000000217', 'f0000000-0000-4000-a000-000000000217', 'd0000000-0000-4000-a000-000000000032', 'd0000000-0000-4000-a000-000000000003');
+
+-- Midtown evening → Liam (d0..33) — Mon-Thu only
+INSERT INTO shift_assignments (id, shift_id, user_id, assigned_by) VALUES
+  ('aa000000-0000-4000-a000-000000000221', 'f0000000-0000-4000-a000-000000000221', 'd0000000-0000-4000-a000-000000000033', 'd0000000-0000-4000-a000-000000000003'),
+  ('aa000000-0000-4000-a000-000000000222', 'f0000000-0000-4000-a000-000000000222', 'd0000000-0000-4000-a000-000000000033', 'd0000000-0000-4000-a000-000000000003'),
+  ('aa000000-0000-4000-a000-000000000223', 'f0000000-0000-4000-a000-000000000223', 'd0000000-0000-4000-a000-000000000033', 'd0000000-0000-4000-a000-000000000003'),
+  ('aa000000-0000-4000-a000-000000000224', 'f0000000-0000-4000-a000-000000000224', 'd0000000-0000-4000-a000-000000000033', 'd0000000-0000-4000-a000-000000000003');
+
+-- Westside morning → Yuki (d0..34)
+INSERT INTO shift_assignments (id, shift_id, user_id, assigned_by) VALUES
+  ('aa000000-0000-4000-a000-000000000228', 'f0000000-0000-4000-a000-000000000228', 'd0000000-0000-4000-a000-000000000034', 'd0000000-0000-4000-a000-000000000004'),
+  ('aa000000-0000-4000-a000-000000000229', 'f0000000-0000-4000-a000-000000000229', 'd0000000-0000-4000-a000-000000000034', 'd0000000-0000-4000-a000-000000000004'),
+  ('aa000000-0000-4000-a000-000000000230', 'f0000000-0000-4000-a000-000000000230', 'd0000000-0000-4000-a000-000000000034', 'd0000000-0000-4000-a000-000000000004'),
+  ('aa000000-0000-4000-a000-000000000231', 'f0000000-0000-4000-a000-000000000231', 'd0000000-0000-4000-a000-000000000034', 'd0000000-0000-4000-a000-000000000004'),
+  ('aa000000-0000-4000-a000-000000000232', 'f0000000-0000-4000-a000-000000000232', 'd0000000-0000-4000-a000-000000000034', 'd0000000-0000-4000-a000-000000000004'),
+  ('aa000000-0000-4000-a000-000000000233', 'f0000000-0000-4000-a000-000000000233', 'd0000000-0000-4000-a000-000000000034', 'd0000000-0000-4000-a000-000000000004'),
+  ('aa000000-0000-4000-a000-000000000234', 'f0000000-0000-4000-a000-000000000234', 'd0000000-0000-4000-a000-000000000034', 'd0000000-0000-4000-a000-000000000004');
+
+-- Westside evening → Aaliyah (d0..35)
+INSERT INTO shift_assignments (id, shift_id, user_id, assigned_by) VALUES
+  ('aa000000-0000-4000-a000-000000000235', 'f0000000-0000-4000-a000-000000000235', 'd0000000-0000-4000-a000-000000000035', 'd0000000-0000-4000-a000-000000000004'),
+  ('aa000000-0000-4000-a000-000000000236', 'f0000000-0000-4000-a000-000000000236', 'd0000000-0000-4000-a000-000000000035', 'd0000000-0000-4000-a000-000000000004'),
+  ('aa000000-0000-4000-a000-000000000237', 'f0000000-0000-4000-a000-000000000237', 'd0000000-0000-4000-a000-000000000035', 'd0000000-0000-4000-a000-000000000004'),
+  ('aa000000-0000-4000-a000-000000000238', 'f0000000-0000-4000-a000-000000000238', 'd0000000-0000-4000-a000-000000000035', 'd0000000-0000-4000-a000-000000000004'),
+  ('aa000000-0000-4000-a000-000000000239', 'f0000000-0000-4000-a000-000000000239', 'd0000000-0000-4000-a000-000000000035', 'd0000000-0000-4000-a000-000000000004'),
+  ('aa000000-0000-4000-a000-000000000240', 'f0000000-0000-4000-a000-000000000240', 'd0000000-0000-4000-a000-000000000035', 'd0000000-0000-4000-a000-000000000004'),
+  ('aa000000-0000-4000-a000-000000000241', 'f0000000-0000-4000-a000-000000000241', 'd0000000-0000-4000-a000-000000000035', 'd0000000-0000-4000-a000-000000000004');
+
+-- Beachfront morning → Marcus (d0..36) — Mon-Thu only
+INSERT INTO shift_assignments (id, shift_id, user_id, assigned_by) VALUES
+  ('aa000000-0000-4000-a000-000000000242', 'f0000000-0000-4000-a000-000000000242', 'd0000000-0000-4000-a000-000000000036', 'd0000000-0000-4000-a000-000000000005'),
+  ('aa000000-0000-4000-a000-000000000243', 'f0000000-0000-4000-a000-000000000243', 'd0000000-0000-4000-a000-000000000036', 'd0000000-0000-4000-a000-000000000005'),
+  ('aa000000-0000-4000-a000-000000000244', 'f0000000-0000-4000-a000-000000000244', 'd0000000-0000-4000-a000-000000000036', 'd0000000-0000-4000-a000-000000000005'),
+  ('aa000000-0000-4000-a000-000000000245', 'f0000000-0000-4000-a000-000000000245', 'd0000000-0000-4000-a000-000000000036', 'd0000000-0000-4000-a000-000000000005');
+
+-- Beachfront evening → Sofia (d0..37) — Mon-Thu only
+INSERT INTO shift_assignments (id, shift_id, user_id, assigned_by) VALUES
+  ('aa000000-0000-4000-a000-000000000249', 'f0000000-0000-4000-a000-000000000249', 'd0000000-0000-4000-a000-000000000037', 'd0000000-0000-4000-a000-000000000005'),
+  ('aa000000-0000-4000-a000-000000000250', 'f0000000-0000-4000-a000-000000000250', 'd0000000-0000-4000-a000-000000000037', 'd0000000-0000-4000-a000-000000000005'),
+  ('aa000000-0000-4000-a000-000000000251', 'f0000000-0000-4000-a000-000000000251', 'd0000000-0000-4000-a000-000000000037', 'd0000000-0000-4000-a000-000000000005'),
+  ('aa000000-0000-4000-a000-000000000252', 'f0000000-0000-4000-a000-000000000252', 'd0000000-0000-4000-a000-000000000037', 'd0000000-0000-4000-a000-000000000005');
+
+-- Downtown overnight → Ryan (d0..38)
+INSERT INTO shift_assignments (id, shift_id, user_id, assigned_by) VALUES
+  ('aa000000-0000-4000-a000-000000000256', 'f0000000-0000-4000-a000-000000000256', 'd0000000-0000-4000-a000-000000000038', 'd0000000-0000-4000-a000-000000000002'),
+  ('aa000000-0000-4000-a000-000000000257', 'f0000000-0000-4000-a000-000000000257', 'd0000000-0000-4000-a000-000000000038', 'd0000000-0000-4000-a000-000000000002'),
+  ('aa000000-0000-4000-a000-000000000258', 'f0000000-0000-4000-a000-000000000258', 'd0000000-0000-4000-a000-000000000038', 'd0000000-0000-4000-a000-000000000002'),
+  ('aa000000-0000-4000-a000-000000000259', 'f0000000-0000-4000-a000-000000000259', 'd0000000-0000-4000-a000-000000000038', 'd0000000-0000-4000-a000-000000000002'),
+  ('aa000000-0000-4000-a000-000000000260', 'f0000000-0000-4000-a000-000000000260', 'd0000000-0000-4000-a000-000000000038', 'd0000000-0000-4000-a000-000000000002'),
+  ('aa000000-0000-4000-a000-000000000261', 'f0000000-0000-4000-a000-000000000261', 'd0000000-0000-4000-a000-000000000038', 'd0000000-0000-4000-a000-000000000002'),
+  ('aa000000-0000-4000-a000-000000000262', 'f0000000-0000-4000-a000-000000000262', 'd0000000-0000-4000-a000-000000000038', 'd0000000-0000-4000-a000-000000000002');
+
+-- Westside overnight → Mia (d0..39)
+INSERT INTO shift_assignments (id, shift_id, user_id, assigned_by) VALUES
+  ('aa000000-0000-4000-a000-000000000263', 'f0000000-0000-4000-a000-000000000263', 'd0000000-0000-4000-a000-000000000039', 'd0000000-0000-4000-a000-000000000004'),
+  ('aa000000-0000-4000-a000-000000000264', 'f0000000-0000-4000-a000-000000000264', 'd0000000-0000-4000-a000-000000000039', 'd0000000-0000-4000-a000-000000000004'),
+  ('aa000000-0000-4000-a000-000000000265', 'f0000000-0000-4000-a000-000000000265', 'd0000000-0000-4000-a000-000000000039', 'd0000000-0000-4000-a000-000000000004'),
+  ('aa000000-0000-4000-a000-000000000266', 'f0000000-0000-4000-a000-000000000266', 'd0000000-0000-4000-a000-000000000039', 'd0000000-0000-4000-a000-000000000004'),
+  ('aa000000-0000-4000-a000-000000000267', 'f0000000-0000-4000-a000-000000000267', 'd0000000-0000-4000-a000-000000000039', 'd0000000-0000-4000-a000-000000000004'),
+  ('aa000000-0000-4000-a000-000000000268', 'f0000000-0000-4000-a000-000000000268', 'd0000000-0000-4000-a000-000000000039', 'd0000000-0000-4000-a000-000000000004'),
+  ('aa000000-0000-4000-a000-000000000269', 'f0000000-0000-4000-a000-000000000269', 'd0000000-0000-4000-a000-000000000039', 'd0000000-0000-4000-a000-000000000004');
+
+-- ============================================================
+-- HISTORICAL SHIFTS for fairness score differentiation
+-- Generates 3 prior weeks of shifts at Midtown (GREEN target)
+-- and Beachfront (YELLOW target) so the 4-week lookback window
+-- has enough data to produce varied fairness scores.
+-- Downtown and Westside remain RED (sparse history).
+-- ============================================================
+DO $$
+DECLARE
+  w INTEGER;
+  d INTEGER;
+  i INTEGER;
+  base_date TIMESTAMP;
+  shift_start TIMESTAMPTZ;
+  shift_end TIMESTAMPTZ;
+  new_shift_id UUID;
+  sched_id UUID;
+  -- Location IDs
+  midtown_id UUID := 'b0000000-0000-4000-a000-000000000002';
+  beachfront_id UUID := 'b0000000-0000-4000-a000-000000000004';
+  -- Manager IDs
+  midtown_mgr UUID := 'd0000000-0000-4000-a000-000000000003';
+  beachfront_mgr UUID := 'd0000000-0000-4000-a000-000000000005';
+  -- Midtown staff and their shifts-per-week
+  mid_staff UUID[] := ARRAY[
+    'd0000000-0000-4000-a000-000000000015', -- David Brown: 5 days
+    'd0000000-0000-4000-a000-000000000017', -- Robert Taylor: 4 days
+    'd0000000-0000-4000-a000-000000000016', -- Lisa Kim: 3 days
+    'd0000000-0000-4000-a000-000000000010'  -- Sarah Johnson: 6 days (Mon-Sat)
+  ];
+  mid_days INTEGER[] := ARRAY[5, 4, 3, 6];
+  -- Beachfront staff and their shifts-per-week
+  bf_staff UUID[] := ARRAY[
+    'd0000000-0000-4000-a000-000000000021', -- Chris Allen: 4 days
+    'd0000000-0000-4000-a000-000000000020', -- Jen Clark: 3 days
+    'd0000000-0000-4000-a000-000000000019'  -- Tom Harris: 4 days
+  ];
+  bf_days INTEGER[] := ARRAY[4, 3, 4];
+BEGIN
+  -- Generate 3 historical weeks (weeks -3, -2, -1 from current Monday)
+  FOR w IN 1..3 LOOP
+    base_date := date_trunc('week', CURRENT_DATE)::timestamp - (w * INTERVAL '1 week');
+
+    -- === MIDTOWN historical shifts (9am-5pm ET, non-premium) ===
+    INSERT INTO schedules (location_id, week_start, status, published_by, published_at)
+    VALUES (midtown_id, base_date::date, 'published', midtown_mgr, NOW())
+    ON CONFLICT (location_id, week_start) DO NOTHING;
+    SELECT id INTO sched_id FROM schedules
+    WHERE location_id = midtown_id AND week_start = base_date::date;
+
+    FOR i IN 1..array_length(mid_staff, 1) LOOP
+      FOR d IN 0..mid_days[i]-1 LOOP
+        shift_start := (base_date + (d || ' days')::interval + INTERVAL '9 hours') AT TIME ZONE 'America/New_York';
+        shift_end   := (base_date + (d || ' days')::interval + INTERVAL '17 hours') AT TIME ZONE 'America/New_York';
+        INSERT INTO shifts (schedule_id, location_id, start_time, end_time, headcount_needed)
+        VALUES (sched_id, midtown_id, shift_start, shift_end, 1)
+        RETURNING id INTO new_shift_id;
+        INSERT INTO shift_assignments (shift_id, user_id, assigned_by)
+        VALUES (new_shift_id, mid_staff[i], midtown_mgr);
+      END LOOP;
+    END LOOP;
+
+    -- === BEACHFRONT historical shifts (9am-5pm PT, non-premium) ===
+    INSERT INTO schedules (location_id, week_start, status, published_by, published_at)
+    VALUES (beachfront_id, base_date::date, 'published', beachfront_mgr, NOW())
+    ON CONFLICT (location_id, week_start) DO NOTHING;
+    SELECT id INTO sched_id FROM schedules
+    WHERE location_id = beachfront_id AND week_start = base_date::date;
+
+    FOR i IN 1..array_length(bf_staff, 1) LOOP
+      FOR d IN 0..bf_days[i]-1 LOOP
+        shift_start := (base_date + (d || ' days')::interval + INTERVAL '9 hours') AT TIME ZONE 'America/Los_Angeles';
+        shift_end   := (base_date + (d || ' days')::interval + INTERVAL '17 hours') AT TIME ZONE 'America/Los_Angeles';
+        INSERT INTO shifts (schedule_id, location_id, start_time, end_time, headcount_needed)
+        VALUES (sched_id, beachfront_id, shift_start, shift_end, 1)
+        RETURNING id INTO new_shift_id;
+        INSERT INTO shift_assignments (shift_id, user_id, assigned_by)
+        VALUES (new_shift_id, bf_staff[i], beachfront_mgr);
+      END LOOP;
+    END LOOP;
+
+    -- === BEACHFRONT premium shifts (Fri 5pm-10pm PT) for uneven distribution ===
+    -- Chris, Jen, Tom each get 1 premium shift (week 1 only) to create moderate inequality
+    IF w = 1 THEN
+      shift_start := (base_date + INTERVAL '4 days 17 hours') AT TIME ZONE 'America/Los_Angeles';
+      shift_end   := (base_date + INTERVAL '4 days 22 hours') AT TIME ZONE 'America/Los_Angeles';
+      INSERT INTO shifts (schedule_id, location_id, start_time, end_time, headcount_needed)
+      VALUES (sched_id, beachfront_id, shift_start, shift_end, 1)
+      RETURNING id INTO new_shift_id;
+      INSERT INTO shift_assignments (shift_id, user_id, assigned_by)
+      VALUES (new_shift_id, 'd0000000-0000-4000-a000-000000000021', beachfront_mgr); -- Chris
+    END IF;
+    -- Jen and Tom each get 1 premium shift (week 1 only)
+    IF w = 1 THEN
+      shift_start := (base_date + INTERVAL '4 days 17 hours') AT TIME ZONE 'America/Los_Angeles';
+      shift_end   := (base_date + INTERVAL '4 days 22 hours') AT TIME ZONE 'America/Los_Angeles';
+      INSERT INTO shifts (schedule_id, location_id, start_time, end_time, headcount_needed)
+      VALUES (sched_id, beachfront_id, shift_start, shift_end, 1)
+      RETURNING id INTO new_shift_id;
+      INSERT INTO shift_assignments (shift_id, user_id, assigned_by)
+      VALUES (new_shift_id, 'd0000000-0000-4000-a000-000000000020', beachfront_mgr); -- Jen
+
+      INSERT INTO shifts (schedule_id, location_id, start_time, end_time, headcount_needed)
+      VALUES (sched_id, beachfront_id, shift_start, shift_end, 1)
+      RETURNING id INTO new_shift_id;
+      INSERT INTO shift_assignments (shift_id, user_id, assigned_by)
+      VALUES (new_shift_id, 'd0000000-0000-4000-a000-000000000019', beachfront_mgr); -- Tom
+    END IF;
+
+  END LOOP;
+END $$;

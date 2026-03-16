@@ -343,6 +343,37 @@ Shift assignments use an INSERT-with-NOT-EXISTS pattern to prevent concurrent do
 - Invitation tokens use UUID v4 (not cryptographically signed, but sufficiently random)
 - WebSocket reconnection handling depends on client implementation
 
+## Future Enhancements
+
+Given more time, these are the features and capabilities I would prioritize next:
+
+### Scheduling & Operations
+- **AI-powered auto-scheduling** — constraint solver that generates optimal schedules respecting skills, availability, fairness targets, and overtime limits
+- **Shift marketplace** — staff post shifts for pickup or trade without requiring manager approval for pre-validated swaps
+- **Recurring schedule templates** — clone a "golden week" pattern and apply it across future weeks with one click
+- **Break & meal period tracking** — log breaks within shifts with compliance alerts for jurisdictions that mandate rest periods
+- **Multi-week publishing** — publish 2-4 weeks ahead with automatic conflict detection across the full horizon
+
+### Staff Experience
+- **Availability preferences** — beyond hard availability, let staff rank preferred shift times and days
+- **Time-off / PTO requests** — integrated request workflow with auto-approval rules based on coverage thresholds
+- **Push notifications** — native mobile push for shift reminders, swap approvals, and last-minute schedule changes
+- **Mobile clock-in/clock-out** — GPS-verified time tracking with geofencing around each location
+- **Shift feedback** — staff rate their shift experience, surfacing patterns for managers (e.g., consistently understaffed Friday evenings)
+
+### Analytics & Intelligence
+- **Demand forecasting** — predict staffing needs from historical patterns, local events, and weather data
+- **Labor cost modeling** — see projected labor cost impact before publishing a schedule, with what-if scenario support
+- **Turnover risk scoring** — flag staff likely to churn based on scheduling patterns (overtime frequency, denied requests, undesirable shift concentration)
+- **Custom report builder** — drag-and-drop report designer with scheduled PDF/CSV export
+
+### Platform & Admin
+- **Granular permissions** — role-based access control beyond the current 3-tier model (e.g., senior staff, shift lead, regional manager)
+- **SSO / OAuth** — Google and Microsoft integration for enterprise onboarding
+- **Comprehensive audit dashboard** — visual timeline of all schedule changes with diff views and rollback capability
+- **Multi-organization support** — franchise model where each franchisee manages independently under a corporate umbrella
+- **Integration API** — webhooks and REST API for third-party systems (payroll, POS, HR platforms)
+
 ## Database Schema
 
 16 tables across the following domains:
