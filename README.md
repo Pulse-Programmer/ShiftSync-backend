@@ -221,7 +221,7 @@ Events emitted: `notification:new`, `schedule:published`, `shift:updated`, `swap
 | PUT | /api/shifts/:id | Update shift |
 | DELETE | /api/shifts/:id | Delete shift |
 | POST | /api/shifts/:id/assign | Assign staff |
-| POST | /api/shifts/:id/preview | Preview assignment constraints |
+| POST | /api/shifts/:id/preview | "What-if" dry-run — preview assignment constraints before confirming |
 | DELETE | /api/shifts/:id/assign/:userId | Unassign staff |
 | GET | /api/shifts/user/schedule | Get current user's schedule |
 | GET | /api/shifts/location/:locationId/view | Location schedule view |
@@ -363,7 +363,7 @@ Given more time, these are the features and capabilities I would prioritize next
 
 ### Analytics & Intelligence
 - **Demand forecasting** — predict staffing needs from historical patterns, local events, and weather data
-- **Labor cost modeling** — see projected labor cost impact before publishing a schedule, with what-if scenario support
+- **Labor cost modeling** — see projected labor cost impact before publishing a schedule, comparing staffing scenarios side by side
 - **Turnover risk scoring** — flag staff likely to churn based on scheduling patterns (overtime frequency, denied requests, undesirable shift concentration)
 - **Custom report builder** — drag-and-drop report designer with scheduled PDF/CSV export
 
