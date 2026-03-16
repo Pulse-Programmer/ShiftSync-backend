@@ -374,6 +374,9 @@ Given more time, these are the features and capabilities I would prioritize next
 - **Multi-organization support** — franchise model where each franchisee manages independently under a corporate umbrella
 - **Integration API** — webhooks and REST API for third-party systems (payroll, POS, HR platforms)
 
+### UI Polish
+- **Responsive refinement** — further optimize component layouts, typography scaling, and touch targets across phone, tablet, and desktop breakpoints for a seamless experience on every screen size
+
 ## Database Schema
 
 16 tables across the following domains:
